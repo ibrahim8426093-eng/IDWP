@@ -222,7 +222,19 @@ function show(id){
 }
 window.show=show;
 
-function selectPackage(name){show("auth");document.getElementById("skill").value=name}
+function selectPackage(name){
+  const user=auth && auth.currentUser;
+
+  if(user){
+    show("dashboard");
+    dashTab("package");
+    return;
+  }
+
+  show("auth");
+  document.getElementById("skill").value=name;
+}
+
 window.selectPackage=selectPackage;
 
 function getReferralFromURL(){
