@@ -55,7 +55,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      message: "Payment verified successfully",
+      message: "Payment verified successfully.",
       paymentId: razorpay_payment_id,
       orderId: razorpay_order_id
     });
