@@ -226,7 +226,8 @@ function selectPackage(name){
   const user=auth && auth.currentUser;
 
   if(user){
-    show("dashboard");
+    document.getElementById("auth").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
     dashTab("package");
     return;
   }
