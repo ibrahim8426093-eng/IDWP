@@ -221,13 +221,11 @@ function show(id){
   }
 }
 window.show=show;
-
 function selectPackage(name){
   const user=auth && auth.currentUser;
 
   if(user){
-    document.getElementById("auth").classList.add("hidden");
-    document.getElementById("dashboard").classList.remove("hidden");
+    show("dashboard");
     dashTab("package");
     return;
   }
@@ -235,6 +233,8 @@ function selectPackage(name){
   show("auth");
   document.getElementById("skill").value=name;
 }
+
+window.selectPackage=selectPackage;
 
 window.selectPackage=selectPackage;
 
