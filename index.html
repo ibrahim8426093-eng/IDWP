@@ -441,11 +441,53 @@ async function dashTab(tab){
   /* =========================
      PACKAGE
   ========================= */
-  if(tab === "package"){
+  if(tab==="package"){
+  const p=packages.find(x=>x.name===user.package);
 
-    const p = packages.find(
-      x => x.name === user.package
-    );
+  d.innerHTML=`
+    <div class="card">
+      <h2>📦 My Package</h2>
+
+      <p>
+        <b>Package:</b>
+        ${user.package || "No Package Selected"}
+      </p>
+
+      <p>
+        <b>Price:</b>
+        ₹${p ? p.price : 0}
+      </p>
+
+      <p>
+        <b>Status:</b>
+        <span class="badge">
+          ${user.packageActive ? "ACTIVE" : "NOT ACTIVE"}
+        </span>
+      </p>
+
+      <hr class="divider">
+
+      <h3>Package Details</h3>
+
+      ${
+        p
+        ? `<ul>${p.work.map(w=>`<li>${w}</li>`).join("")}</ul>`
+        : `<p class="muted">Please select a package first.</p>`
+      }
+
+      <div class="notice">
+        Package activation is currently pending.
+        Please contact IDWP admin for approved activation/payment process.
+      </div>
+
+      <br>
+
+      <button class="btn wa" onclick="whatsapp()">
+        Contact Admin on WhatsApp
+      </button>
+    </div>
+  `;
+}
 
     d.innerHTML = `
       <div class="card">
