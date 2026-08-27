@@ -209,17 +209,46 @@ function renderPackages(){
 renderPackages();
 
 function show(id){
-  document.getElementById("auth").classList.add("hidden");
-  document.getElementById("dashboard").classList.add("hidden");
-  if(id==="auth"){
-    document.getElementById("auth").classList.remove("hidden");
-    window.scrollTo({top:document.getElementById("auth").offsetTop-60,behavior:"smooth"});
+  const auth = document.getElementById("auth");
+  const dashboard = document.getElementById("dashboard");
+
+  if(!auth || !dashboard){
+    alert("Page section not found");
+    return;
   }
-  if(id==="dashboard"){
-    document.getElementById("dashboard").classList.remove("hidden");
-    dashTab("overview");
+
+  auth.classList.add("hidden");
+  dashboard.classList.add("hidden");
+
+  if(id === "auth"){
+    auth.classList.remove("hidden");
+    auth.style.display = "block";
+    dashboard.style.display = "none";
+
+    setTimeout(function(){
+      auth.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 50);
+
+    return;
+  }
+
+  if(id === "dashboard"){
+    dashboard.classList.remove("hidden");
+    dashboard.style.display = "block";
+    auth.style.display = "none";
+
+    if(typeof dashTab === "function"){
+      dashTab("overview");
+    }
+
+    return;
   }
 }
+
+window.show = show;
 window.show=show;
 function selectPackage(name){
   const user=auth && auth.currentUser;
