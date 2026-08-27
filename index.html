@@ -518,44 +518,6 @@ async function dashTab(tab){
   `;
 }
 
-    d.innerHTML = `
-      <div class="card">
-
-        <h2>My Package</h2>
-
-        <p>
-          Package:
-          <b>${user.package || "No Package Selected"}</b>
-        </p>
-
-        <p>
-          Price:
-          <b>₹${p ? p.price : 0}</b>
-        </p>
-
-        <p>
-          Status:
-          <span class="badge">
-            ${user.packageActive ? "ACTIVE" : "NOT ACTIVE"}
-          </span>
-        </p>
-
-        <div class="notice">
-
-          Package activation should be completed
-          through your approved payment/admin process.
-
-          <br><br>
-
-          Payment verification must be handled
-          securely by the backend/admin.
-
-        </div>
-
-      </div>
-    `;
-  }
-
 
   /* =========================
      WORK & EARN
