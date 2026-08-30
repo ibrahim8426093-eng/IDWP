@@ -331,7 +331,34 @@ document.getElementById("loginForm").addEventListener("submit",async e=>{
     status.className="status error";
   }
 });
+  }catch(error){
+    status.textContent=error.message;
+    status.className="status error";
+  }
+});
 
+async function resetPassword(){
+  if(!requireFirebase()) return;
+
+  const email = document.getElementById("loginEmail").value.trim();
+
+  if(!email){
+    alert("Please enter your email first");
+    return;
+  }
+
+  try{
+    await sendPasswordResetEmail(auth, email);
+    alert("Password reset link sent to your email");
+  }catch(error){
+    alert(error.message);
+  }
+}
+
+window.resetPassword = resetPassword;
+
+async function loadUser(){
+  const u=auth.currentUser;
 async function loadUser(){
   const u=auth.currentUser;
   if(!u) return null;
