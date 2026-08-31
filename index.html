@@ -327,16 +327,15 @@ document.getElementById("loginForm").addEventListener("submit",async e=>{
     status.textContent="Login successful.";
     show("dashboard");
   }catch(error){
-    status.textContent=error.message;
-    status.className="status error";
-  }
-  }
+  status.textContent=error.message;
+  status.className="status error";
+}
 });
 
 async function resetPassword(){
   if(!requireFirebase()) return;
 
-  const email = document.getElementById("loginEmail").value.trim();
+  const email=document.getElementById("loginEmail").value.trim();
 
   if(!email){
     alert("Please enter your email first");
@@ -344,27 +343,28 @@ async function resetPassword(){
   }
 
   try{
-    await sendPasswordResetEmail(auth, email);
+    await sendPasswordResetEmail(auth,email);
     alert("Password reset link sent to your email");
   }catch(error){
     alert(error.message);
   }
 }
 
-window.resetPassword = resetPassword;
-  async function loadUser(){
-  const u = auth.currentUser;
+window.resetPassword=resetPassword;
+
+async function loadUser(){
+  const u=auth.currentUser;
 
   if(!u) return null;
 
-  const s = await getDoc(doc(db,"users",u.uid));
+  const s=await getDoc(doc(db,"users",u.uid));
 
   if(!s.exists()) return null;
 
-  window.currentUser = s.data();
+  window.currentUser=s.data();
 
   return s.data();
-  }
+}
 async function dashTab(tab){
   if(!requireFirebase()) return;
 
