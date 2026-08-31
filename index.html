@@ -319,7 +319,7 @@ document.getElementById("regForm").addEventListener("submit",async e=>{
     status.className="status error";
   }
 });
-document.getElementById("loginForm").addEventListener("submit", async e => {
+  document.getElementById("loginForm").addEventListener("submit", async e => {
   e.preventDefault();
 
   if(!requireFirebase()) return;
@@ -337,6 +337,11 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
     status.textContent = "Login successful.";
     show("dashboard");
 
+  } catch(error) {
+    status.textContent = error.message;
+    status.className = "status error";
+  }
+});
   } catch(error) {
     status.textContent = error.message;
     status.className = "status error";
