@@ -319,22 +319,28 @@ document.getElementById("regForm").addEventListener("submit",async e=>{
     status.className="status error";
   }
 });
-
-document.getElementById("loginForm").addEventListener("submit",async e=>{
+document.getElementById("loginForm").addEventListener("submit", async e => {
   e.preventDefault();
+
   if(!requireFirebase()) return;
-  const status=document.getElementById("loginStatus");
-  status.textContent="Logging in...";
-  try{
+
+  const status = document.getElementById("loginStatus");
+  status.textContent = "Logging in...";
+
+  try {
     await signInWithEmailAndPassword(
       auth,
       document.getElementById("loginEmail").value.trim(),
       document.getElementById("loginPassword").value
     );
-    status.textContent="Login successful.";
-    show("dashboard");}catch(error){
-  status.textContent=error.message;
-  status.className="status error";
+
+    status.textContent = "Login successful.";
+    show("dashboard");
+
+  } catch(error) {
+    status.textContent = error.message;
+    status.className = "status error";
+  }
 });
 async function resetPassword(){
   if(!requireFirebase()) return;
