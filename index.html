@@ -333,25 +333,24 @@ document.getElementById("loginForm").addEventListener("submit",async e=>{
     );
     status.textContent="Login successful.";
     show("dashboard");
-  }catch(error){
-  status.textContent=error.message;
-  status.className="status error";
-}
-});
-
-async function resetPassword(){
+  async function resetPassword(){
   if(!requireFirebase()) return;
 
-  const email=document.getElementById("loginEmail").value.trim();
+  const email = prompt("Please enter your registered email:");
 
   if(!email){
-    alert("Please enter your email first");
     return;
   }
 
   try{
-    await sendPasswordResetEmail(auth,email);
-    alert("Password reset link sent to your email");
+    await sendPasswordResetEmail(auth, email.trim());
+    alert("Password reset link sent to your email. Please check your inbox.");
+  }catch(error){
+    alert(error.message);
+  }
+}
+
+window.resetPassword = resetPassword;
   }catch(error){
     alert(error.message);
   }
