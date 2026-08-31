@@ -354,7 +354,7 @@ async function resetPassword(){
 window.resetPassword = resetPassword;
 
 async function loadUser(){
-  const u=auth.currentUser;
+  const u=auth.currentUser;if(!u) return null;
 async function loadUser(){
   const u=auth.currentUser;
   if(!u) return null;
