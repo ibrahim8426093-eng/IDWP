@@ -352,17 +352,19 @@ async function resetPassword(){
 }
 
 window.resetPassword = resetPassword;
+  async function loadUser(){
+  const u = auth.currentUser;
 
-async function loadUser(){
-  const u=auth.currentUser;if(!u) return null;
-async function loadUser(){
-  const u=auth.currentUser;
   if(!u) return null;
-  const s=await getDoc(doc(db,"users",u.uid));
+
+  const s = await getDoc(doc(db,"users",u.uid));
+
   if(!s.exists()) return null;
-  window.currentUser=s.data();
+
+  window.currentUser = s.data();
+
   return s.data();
-}
+  }
 async function dashTab(tab){
   if(!requireFirebase()) return;
 
