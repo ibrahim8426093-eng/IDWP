@@ -332,7 +332,10 @@ document.getElementById("loginForm").addEventListener("submit",async e=>{
       document.getElementById("loginPassword").value
     );
     status.textContent="Login successful.";
-    show("dashboard");
+    show("dashboard");}catch(error){
+  status.textContent=error.message;
+  status.className="status error";
+});
 async function resetPassword(){
   if(!requireFirebase()) return;
 
