@@ -319,13 +319,14 @@ document.getElementById("regForm").addEventListener("submit",async e=>{
     status.className="status error";
   }
 });
-  document.getElementById("loginForm").addEventListener("submit", async e => {
+document.getElementById("loginForm").addEventListener("submit", async e => {
   e.preventDefault();
 
   if(!requireFirebase()) return;
 
   const status = document.getElementById("loginStatus");
   status.textContent = "Logging in...";
+  status.className = "status";
 
   try {
     await signInWithEmailAndPassword(
@@ -335,6 +336,7 @@ document.getElementById("regForm").addEventListener("submit",async e=>{
     );
 
     status.textContent = "Login successful.";
+    status.className = "status success-text";
     show("dashboard");
 
   } catch(error) {
@@ -342,29 +344,42 @@ document.getElementById("regForm").addEventListener("submit",async e=>{
     status.className = "status error";
   }
 });
-  } catch(error) {
-    status.textContent = error.message;
-    status.className = "status error";
-  }
-});
+
+
 async function resetPassword(){
   if(!requireFirebase()) return;
 
-  const email = prompt("Please enter your registered email:");
+  const email = document.getElementById("resetEmail").value.trim();
 
   if(!email){
+    alert("Please enter your registered email.");
     return;
   }
 
-  try{
-    await sendPasswordResetEmail(auth, email.trim());
+  try {
+    await sendPasswordResetEmail(auth, email);
     alert("Password reset link sent to your email. Please check your inbox.");
-  }catch(error){
+  } catch(error) {
     alert(error.message);
   }
 }
 
 window.resetPassword = resetPassword;
+
+
+async function loadUser(){
+  const u = auth.currentUser;
+
+  if(!u) return null;
+
+  const s = await getDoc(doc(db, "users", u.uid));
+
+  if(!s.exists()) return null;
+
+  window.currentUser = s.data();
+
+  return s.data();
+}
 async function loadUser(){
   const u=auth.currentUser;
 
