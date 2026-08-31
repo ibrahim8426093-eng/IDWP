@@ -333,7 +333,7 @@ document.getElementById("loginForm").addEventListener("submit",async e=>{
     );
     status.textContent="Login successful.";
     show("dashboard");
-  async function resetPassword(){
+async function resetPassword(){
   if(!requireFirebase()) return;
 
   const email = prompt("Please enter your registered email:");
@@ -351,13 +351,6 @@ document.getElementById("loginForm").addEventListener("submit",async e=>{
 }
 
 window.resetPassword = resetPassword;
-  }catch(error){
-    alert(error.message);
-  }
-}
-
-window.resetPassword=resetPassword;
-
 async function loadUser(){
   const u=auth.currentUser;
 
