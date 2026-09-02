@@ -660,10 +660,47 @@ d.innerHTML=`<div class="card"><h2>Withdrawal History</h2>${h||'<p class="muted"
 window.dashTab=dashTab;
 
 async function submitWork(title){
-if(!requireFirebase()||!auth.currentUser)return;
-try{await addDoc(collection(db,"users",auth.currentUser.uid,"tasks"),{title,status:"Pending",createdAt:serverTimestamp()});
-alert("Work submitted for verification.");dashTab("work")}catch(e){alert(e.message)}
+  if(!requireFirebase() || !auth.currentUser) return;
+
+  try{
+    const userRef=doc(db,"users",auth.currentUser.uid);
+    const snap=await getDoc(userRef);
+
+    if(!snap.exists()){
+      alert("User account not found.");
+      return;
+    }
+
+    const user=snap.data();
+
+    // Package purchase is required before doing work
+    if(user.packageActive !== true){
+      alert(
+        "Please purchase and activate a package first.\n\n" +
+        "You cannot submit work before package activation."
+      );
+      dashTab("package");
+      return;
+    }
+
+    await addDoc(
+      collection(db,"users",auth.currentUser.uid,"tasks"),
+      {
+        title:title,
+        status:"Pending",
+        createdAt:serverTimestamp()
+      }
+    );
+
+    alert("Work submitted for verification.");
+    dashTab("work");
+
+  }catch(e){
+    console.error("Submit work error:",e);
+    alert(e.message || "Unable to submit work.");
+  }
 }
+
 window.submitWork=submitWork;
 
 async function requestWithdrawal(){
