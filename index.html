@@ -396,19 +396,102 @@ async function buyPackage(name) {
 window.buyPackage = buyPackage;
 
 window.buyPackage=buyPackage;
-async function claimFreePackage(){
-if(!requireFirebase()||!auth.currentUser)return;
-try{
-const ref=doc(db,"users",auth.currentUser.uid),s=await getDoc(ref);if(!s.exists())return;
-const u=s.data(),count=Number(u.directReferralCount||0);
-if(count<8&&!u.freePackageEligible){alert("You need 8 verified direct paid referrals first.");return}
-if(u.freePackageClaimed){alert("Free package already claimed.");return}
-await updateDoc(ref,{freePackageEligible:true,freePackageClaimed:true,referralCommissionRate:25});
-alert("Free package reward recorded. Direct commission is now 25%.");
-await dashTab("referrals");
-}catch(e){alert(e.message)}
+async function claimFreePackage() {
+  if (!requireFirebase()) return;
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Please Login or Register first.");
+    return;
+  }
+
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) {
+      alert("User account not found.");
+      return;
+    }
+
+    const data = snap.data();
+
+    const directCount = Number(
+      data.directReferralCount || 0
+    );
+
+    const currentLevel = Math.min(
+      directCount,
+      60
+    );
+
+    // Free package requires 8 verified direct buyers
+    if (directCount < 8) {
+      alert(
+        "You need 8 verified direct package buyers first."
+      );
+      return;
+    }
+
+    if (data.freePackageClaimed === true) {
+      alert("Free package has already been claimed.");
+      return;
+    }
+
+    // Level 8 commission = 30%
+    await updateDoc(userRef, {
+      level: currentLevel,
+      referralCommissionRate:
+        currentLevel >= 51 ? 0.50 :
+        currentLevel >= 31 ? 0.48 :
+        currentLevel >= 26 ? 0.45 :
+        currentLevel >= 16 ? 0.43 :
+        currentLevel >= 11 ? 0.40 :
+        currentLevel >= 9 ? 0.35 :
+        currentLevel >= 5 ? 0.30 :
+        0.20,
+
+      freePackageEligible: true,
+      freePackageClaimed: true,
+      freePackageClaimedAt: serverTimestamp()
+    });
+
+    alert(
+      "Congratulations! 🎉\n\n" +
+      "You have successfully claimed your free package.\n\n" +
+      "Your current Level: " + currentLevel +
+      "\n" +
+      "Direct Commission Rate: " +
+      (
+        (
+          currentLevel >= 51 ? 0.50 :
+          currentLevel >= 31 ? 0.48 :
+          currentLevel >= 26 ? 0.45 :
+          currentLevel >= 16 ? 0.43 :
+          currentLevel >= 11 ? 0.40 :
+          currentLevel >= 9 ? 0.35 :
+          currentLevel >= 5 ? 0.30 :
+          0.20
+        ) * 100
+      ) +
+      "%"
+    );
+
+    await loadUser();
+    showTab("referrals");
+
+  } catch (error) {
+    console.error("Free package claim error:", error);
+
+    alert(
+      error.message ||
+      "Unable to claim free package."
+    );
+  }
 }
-window.claimFreePackage=claimFreePackage;
+
+window.claimFreePackage = claimFreePackage;
 
 async function dashTab(tab){
 if(!requireFirebase())return;
