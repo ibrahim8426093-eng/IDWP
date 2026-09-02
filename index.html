@@ -240,93 +240,160 @@ const s=await getDoc(doc(db,"users",auth.currentUser.uid));
 if(!s.exists())return null;window.currentUser=s.data();return s.data();
 }
 
-async function buyPackage(name){
-  if(!requireFirebase()) return;
 
-  const p=packages.find(x=>x.name===name);
-  if(!p){
+async function buyPackage(name) {
+  if (!requireFirebase()) return;
+
+  const p = packages.find(x => x.name === name);
+
+  if (!p) {
     alert("Package not found.");
     return;
   }
 
-  const user=auth.currentUser;
-  if(!user){
+  const user = auth.currentUser;
+
+  if (!user) {
     alert("Please Login or Register first.");
     return;
   }
 
-  if(!window.Razorpay){
+  if (!window.Razorpay) {
     alert("Razorpay checkout did not load. Please refresh and try again.");
     return;
   }
 
-  const options={
-    key:RAZORPAY_KEY_ID,
-    amount:p.price*100,
-    currency:"INR",
-    name:"IDWP",
-    description:p.name+" Package",
-    prefill:{
-      name:user.displayName||"",
-      email:user.email||""
-    },
+  try {
+    // Get Firebase login token
+    const idToken = await user.getIdToken();
 
-    handler:async response=>{
-      try{
-        /* Payment successful -> Package ACTIVE */
-        await updateDoc(
-          doc(db,"users",user.uid),
-          {
-            package:p.name,
-            packagePrice:p.price,
-            packageActive:true,
-            packagePaymentId:response.razorpay_payment_id,
-            packageActivatedAt:serverTimestamp()
-          }
-        );
+    // Create secure Razorpay order
+    const orderResponse = await fetch("/api/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + idToken
+      },
+      body: JSON.stringify({
+        packageName: p.name
+      })
+    });
 
-        /* Save payment history */
-        try{
-          await addDoc(collection(db,"payments"),{
-            uid:user.uid,
-            userID:user.userID||"",
-            package:p.name,
-            amount:p.price,
-            paymentId:response.razorpay_payment_id,
-            status:"Paid",
-            createdAt:serverTimestamp()
-          });
-        }catch(paymentError){
-          console.log("Payment history save error:",paymentError);
-        }
+    const orderData = await orderResponse.json();
 
-        alert(
-          "Payment successful!\n\n" +
-          "Payment ID: "+response.razorpay_payment_id+
-          "\n\nYour package is now ACTIVE."
-        );
-
-        await loadUser();
-        showTab("package");
-
-      }catch(e){
-        console.error(e);
-        alert(
-          "Payment successful, but package activation failed.\n\n"+
-          "Please contact admin with Payment ID: "+
-          response.razorpay_payment_id
-        );
-      }
+    if (!orderResponse.ok) {
+      throw new Error(
+        orderData.error || "Unable to create payment order."
+      );
     }
-  };
 
-  try{
-    const rzp=new Razorpay(options);
+    // Open Razorpay Checkout
+    const options = {
+      key: orderData.keyId,
+
+      amount: orderData.amount,
+
+      currency: orderData.currency || "INR",
+
+      name: "IDWP",
+
+      description: p.name + " Package",
+
+      order_id: orderData.orderId,
+
+      prefill: {
+        name: user.displayName || "",
+        email: user.email || ""
+      },
+
+      handler: async function (response) {
+        try {
+          // Verify payment on server
+          const verifyResponse = await fetch(
+            "/api/verify-payment",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + idToken
+              },
+              body: JSON.stringify({
+                razorpay_order_id:
+                  response.razorpay_order_id,
+
+                razorpay_payment_id:
+                  response.razorpay_payment_id,
+
+                razorpay_signature:
+                  response.razorpay_signature
+              })
+            }
+          );
+
+          const verifyData =
+            await verifyResponse.json();
+
+          if (!verifyResponse.ok || !verifyData.success) {
+            throw new Error(
+              verifyData.error ||
+              "Payment verification failed."
+            );
+          }
+
+          alert(
+            "Payment successful!\n\n" +
+            "Payment ID: " +
+            response.razorpay_payment_id +
+            "\n\n" +
+            "Your package is now ACTIVE."
+          );
+
+          // Refresh user data
+          await loadUser();
+
+          showTab("package");
+
+        } catch (error) {
+          console.error(
+            "Payment verification error:",
+            error
+          );
+
+          alert(
+            "Payment received, but verification failed.\n\n" +
+            "Payment ID: " +
+            response.razorpay_payment_id +
+            "\n\n" +
+            "Please contact IDWP Admin."
+          );
+        }
+      },
+
+      modal: {
+        ondismiss: function () {
+          console.log("Razorpay checkout closed.");
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+
     rzp.open();
-  }catch(e){
-    alert(e.message);
+
+  } catch (error) {
+    console.error(
+      "Buy package error:",
+      error
+    );
+
+    alert(
+      error.message ||
+      "Unable to start payment. Please try again."
+    );
   }
 }
+
+window.buyPackage = buyPackage;
 
 window.buyPackage=buyPackage;
 async function claimFreePackage(){
