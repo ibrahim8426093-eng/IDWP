@@ -241,29 +241,94 @@ if(!s.exists())return null;window.currentUser=s.data();return s.data();
 }
 
 async function buyPackage(name){
-if(!requireFirebase())return;
-const p=packages.find(x=>x.name===name);if(!p)return;
-const u=auth.currentUser;
-if(!u){show("auth");document.getElementById("skill").value=name;alert("Please Login or Register first.");return}
-if(!window.Razorpay){alert("Razorpay checkout did not load. Refresh and try again.");return}
-const options={
-key:RAZORPAY_KEY_ID,amount:p.price*100,currency:"INR",name:"IDWP",
-description:p.name+" Package (TEST)",prefill:{email:u.email||""},
-handler:async response=>{
-try{
-await addDoc(collection(db,"payments"),{
-uid:u.uid,userID:(window.currentUser||{}).userID||"",package:p.name,
-amount:p.price,paymentId:response.razorpay_payment_id,
-status:"Paid - Pending Verification",createdAt:serverTimestamp()
-});
-alert("TEST payment successful. Payment ID: "+response.razorpay_payment_id);
-}catch(e){alert("Payment completed, but record saving failed. Contact admin.")}
-}
-};
-try{new window.Razorpay(options).open()}catch(e){alert(e.message)}
-}
-window.buyPackage=buyPackage;
+  if(!requireFirebase()) return;
 
+  const p=packages.find(x=>x.name===name);
+  if(!p){
+    alert("Package not found.");
+    return;
+  }
+
+  const user=auth.currentUser;
+  if(!user){
+    alert("Please Login or Register first.");
+    return;
+  }
+
+  if(!window.Razorpay){
+    alert("Razorpay checkout did not load. Please refresh and try again.");
+    return;
+  }
+
+  const options={
+    key:RAZORPAY_KEY_ID,
+    amount:p.price*100,
+    currency:"INR",
+    name:"IDWP",
+    description:p.name+" Package",
+    prefill:{
+      name:user.displayName||"",
+      email:user.email||""
+    },
+
+    handler:async response=>{
+      try{
+        /* Payment successful -> Package ACTIVE */
+        await updateDoc(
+          doc(db,"users",user.uid),
+          {
+            package:p.name,
+            packagePrice:p.price,
+            packageActive:true,
+            packagePaymentId:response.razorpay_payment_id,
+            packageActivatedAt:serverTimestamp()
+          }
+        );
+
+        /* Save payment history */
+        try{
+          await addDoc(collection(db,"payments"),{
+            uid:user.uid,
+            userID:user.userID||"",
+            package:p.name,
+            amount:p.price,
+            paymentId:response.razorpay_payment_id,
+            status:"Paid",
+            createdAt:serverTimestamp()
+          });
+        }catch(paymentError){
+          console.log("Payment history save error:",paymentError);
+        }
+
+        alert(
+          "Payment successful!\n\n" +
+          "Payment ID: "+response.razorpay_payment_id+
+          "\n\nYour package is now ACTIVE."
+        );
+
+        await loadUser();
+        showTab("package");
+
+      }catch(e){
+        console.error(e);
+        alert(
+          "Payment successful, but package activation failed.\n\n"+
+          "Please contact admin with Payment ID: "+
+          response.razorpay_payment_id
+        );
+      }
+    }
+  };
+
+  try{
+    const rzp=new Razorpay(options);
+    rzp.open();
+  }catch(e){
+    alert(e.message);
+  }
+}
+
+window.buyPackage=buyPackage;
 async function claimFreePackage(){
 if(!requireFirebase()||!auth.currentUser)return;
 try{
