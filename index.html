@@ -194,26 +194,110 @@ const refFromURL=new URLSearchParams(location.search).get("ref");
 if(refFromURL)document.getElementById("ref").value=refFromURL;
 
 document.getElementById("regForm").addEventListener("submit",async e=>{
-e.preventDefault();if(!requireFirebase())return;
-const st=document.getElementById("regStatus");st.textContent="Creating account...";
-try{
-const result=await createUserWithEmailAndPassword(auth,document.getElementById("email").value.trim(),document.getElementById("password").value);
-const selectedName=document.getElementById("skill").value,selected=packages.find(p=>p.name===selectedName);
-const userID=generateID();
-await setDoc(doc(db,"users",result.user.uid),{
-uid:result.user.uid,userID,
-name:document.getElementById("name").value.trim(),
-mobile:document.getElementById("mobile").value.trim(),
-whatsapp:document.getElementById("waNumber").value.trim(),
-email:result.user.email,
-referral:document.getElementById("ref").value.trim(),
-package:selectedName||"",packagePrice:selected?selected.price:0,
-packageActive:false,earnings:0,workEarnings:0,referralEarnings:0,pending:0,
-directReferralCount:0,freePackageEligible:false,freePackageClaimed:false,
-referralCommissionRate:30,createdAt:serverTimestamp()
-});
-st.textContent="Registration successful. Your ID: "+userID;st.className="status success-text";show("dashboard");
-}catch(error){st.textContent=error.message;st.className="status error"}
+  e.preventDefault();
+
+  if(!requireFirebase()) return;
+
+  const st=document.getElementById("regStatus");
+  st.textContent="Checking Referral ID...";
+  st.className="status";
+
+  const name=document.getElementById("name").value.trim();
+  const mobile=document.getElementById("mobile").value.trim();
+  const whatsapp=document.getElementById("waNumber").value.trim();
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+  const referralId=document.getElementById("ref").value.trim().toUpperCase();
+  const selectedName=document.getElementById("skill").value;
+  const selected=packages.find(p=>p.name===selectedName);
+
+  // Referral ID mandatory
+  if(!referralId){
+    st.textContent="Referral ID is required.";
+    st.className="status error";
+    return;
+  }
+
+  // Check Referral ID exists
+  try{
+    const referralQuery=await getDocs(
+      query(
+        collection(db,"users"),
+        where("userID","==",referralId)
+      )
+    );
+
+    if(referralQuery.empty){
+      st.textContent="Invalid Referral ID. Please enter an existing IDWP User ID.";
+      st.className="status error";
+      return;
+    }
+  }catch(error){
+    console.error(error);
+    st.textContent="Unable to verify Referral ID. Please try again.";
+    st.className="status error";
+    return;
+  }
+
+  if(!selected){
+    st.textContent="Please select a package.";
+    st.className="status error";
+    return;
+  }
+
+  st.textContent="Creating account...";
+
+  try{
+    const result=await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    const userID=generateID();
+
+    await setDoc(doc(db,"users",result.user.uid),{
+      uid:result.user.uid,
+      userID:userID,
+      name:name,
+      mobile:mobile,
+      whatsapp:whatsapp,
+      email:result.user.email,
+
+      // Mandatory valid referrer
+      referral:referralId,
+
+      package:selectedName,
+      packagePrice:selected.price,
+      packageActive:false,
+
+      earnings:0,
+      workEarnings:0,
+      referralEarnings:0,
+      pending:0,
+
+      // Referral / level system
+      directReferralCount:0,
+      level:0,
+      referralCommissionRate:0.20,
+      freePackageEligible:false,
+      freePackageClaimed:false,
+
+      createdAt:serverTimestamp()
+    });
+
+    st.textContent=
+      "Registration successful. Your ID: "+userID;
+    st.className="status success-text";
+
+    show("dashboard");
+    await loadUser();
+
+  }catch(error){
+    console.error(error);
+    st.textContent=error.message;
+    st.className="status error";
+  }
 });
 
 document.getElementById("loginForm").addEventListener("submit",async e=>{
