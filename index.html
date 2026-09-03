@@ -61,7 +61,7 @@ input,select{width:100%;padding:12px;border:1px solid #d8dee9;border-radius:9px;
 <input id="waNumber" placeholder="WhatsApp Number" required>
 <input id="email" type="email" placeholder="Email" required>
 <input id="password" type="password" placeholder="Password (minimum 6 characters)" minlength="6" required>
-<input id="ref" placeholder="Referral ID (required)" required>
+<input id="ref" placeholder="Referral ID (optional)">
 <select id="skill"><option value="">Select Skill / Package</option></select>
 <button class="btn" type="submit">Create Account</button>
 </form>
@@ -126,9 +126,6 @@ measurementId:"G-WTLL317BEK"
 
 const ADMIN_WA="917320976061";
 
-/* TEST ONLY: use your actual Razorpay TEST Key ID here.
-   Never put a Razorpay Key Secret in this file. */
-const RAZORPAY_KEY_ID="rzp_test_TVBpAScY6qFh2i";
 
 const packages=[
 {name:"Lead Generation",price:460,work:["Find eligible leads","Verify lead details","Submit lead sheet"]},
@@ -194,110 +191,26 @@ const refFromURL=new URLSearchParams(location.search).get("ref");
 if(refFromURL)document.getElementById("ref").value=refFromURL;
 
 document.getElementById("regForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-
-  if(!requireFirebase()) return;
-
-  const st=document.getElementById("regStatus");
-  st.textContent="Checking Referral ID...";
-  st.className="status";
-
-  const name=document.getElementById("name").value.trim();
-  const mobile=document.getElementById("mobile").value.trim();
-  const whatsapp=document.getElementById("waNumber").value.trim();
-  const email=document.getElementById("email").value.trim();
-  const password=document.getElementById("password").value;
-  const referralId=document.getElementById("ref").value.trim().toUpperCase();
-  const selectedName=document.getElementById("skill").value;
-  const selected=packages.find(p=>p.name===selectedName);
-
-  // Referral ID mandatory
-  if(!referralId){
-    st.textContent="Referral ID is required.";
-    st.className="status error";
-    return;
-  }
-
-  // Check Referral ID exists
-  try{
-    const referralQuery=await getDocs(
-      query(
-        collection(db,"users"),
-        where("userID","==",referralId)
-      )
-    );
-
-    if(referralQuery.empty){
-      st.textContent="Invalid Referral ID. Please enter an existing IDWP User ID.";
-      st.className="status error";
-      return;
-    }
-  }catch(error){
-    console.error(error);
-    st.textContent="Unable to verify Referral ID. Please try again.";
-    st.className="status error";
-    return;
-  }
-
-  if(!selected){
-    st.textContent="Please select a package.";
-    st.className="status error";
-    return;
-  }
-
-  st.textContent="Creating account...";
-
-  try{
-    const result=await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-
-    const userID=generateID();
-
-    await setDoc(doc(db,"users",result.user.uid),{
-      uid:result.user.uid,
-      userID:userID,
-      name:name,
-      mobile:mobile,
-      whatsapp:whatsapp,
-      email:result.user.email,
-
-      // Mandatory valid referrer
-      referral:referralId,
-
-      package:selectedName,
-      packagePrice:selected.price,
-      packageActive:false,
-
-      earnings:0,
-      workEarnings:0,
-      referralEarnings:0,
-      pending:0,
-
-      // Referral / level system
-      directReferralCount:0,
-      level:0,
-      referralCommissionRate:0.20,
-      freePackageEligible:false,
-      freePackageClaimed:false,
-
-      createdAt:serverTimestamp()
-    });
-
-    st.textContent=
-      "Registration successful. Your ID: "+userID;
-    st.className="status success-text";
-
-    show("dashboard");
-    await loadUser();
-
-  }catch(error){
-    console.error(error);
-    st.textContent=error.message;
-    st.className="status error";
-  }
+e.preventDefault();if(!requireFirebase())return;
+const st=document.getElementById("regStatus");st.textContent="Creating account...";
+try{
+const result=await createUserWithEmailAndPassword(auth,document.getElementById("email").value.trim(),document.getElementById("password").value);
+const selectedName=document.getElementById("skill").value,selected=packages.find(p=>p.name===selectedName);
+const userID=generateID();
+await setDoc(doc(db,"users",result.user.uid),{
+uid:result.user.uid,userID,
+name:document.getElementById("name").value.trim(),
+mobile:document.getElementById("mobile").value.trim(),
+whatsapp:document.getElementById("waNumber").value.trim(),
+email:result.user.email,
+referral:document.getElementById("ref").value.trim()||"Direct",
+package:selectedName||"",packagePrice:selected?selected.price:0,
+packageActive:false,earnings:0,workEarnings:0,referralEarnings:0,pending:0,
+directReferralCount:0,freePackageEligible:false,freePackageClaimed:false,
+referralCommissionRate:30,createdAt:serverTimestamp()
+});
+st.textContent="Registration successful. Your ID: "+userID;st.className="status success-text";show("dashboard");
+}catch(error){st.textContent=error.message;st.className="status error"}
 });
 
 document.getElementById("loginForm").addEventListener("submit",async e=>{
@@ -324,258 +237,94 @@ const s=await getDoc(doc(db,"users",auth.currentUser.uid));
 if(!s.exists())return null;window.currentUser=s.data();return s.data();
 }
 
-
-async function buyPackage(name) {
-  if (!requireFirebase()) return;
-
-  const p = packages.find(x => x.name === name);
-
-  if (!p) {
-    alert("Package not found.");
-    return;
-  }
-
-  const user = auth.currentUser;
-
-  if (!user) {
+async function buyPackage(name){
+  if(!requireFirebase()) return;
+  const p=packages.find(x=>x.name===name);
+  if(!p){alert("Package not found.");return;}
+  const user=auth.currentUser;
+  if(!user){
+    show("auth");
+    document.getElementById("skill").value=name;
     alert("Please Login or Register first.");
     return;
   }
-
-  if (!window.Razorpay) {
+  if(!window.Razorpay){
     alert("Razorpay checkout did not load. Please refresh and try again.");
     return;
   }
-
-  try {
-    // Get Firebase login token
-    const idToken = await user.getIdToken();
-
-    // Create secure Razorpay order
-    const orderResponse = await fetch("/api/create-order", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + idToken
+  try{
+    const idToken=await user.getIdToken(true);
+    const orderResponse=await fetch("/api/create-order",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+idToken
       },
-      body: JSON.stringify({
-        packageName: p.name
-      })
+      body:JSON.stringify({packageName:p.name})
     });
-
-    const orderData = await orderResponse.json();
-
-    if (!orderResponse.ok) {
-      throw new Error(
-        orderData.error || "Unable to create payment order."
-      );
+    const orderData=await orderResponse.json().catch(()=>({}));
+    if(!orderResponse.ok || !orderData.success){
+      throw new Error(orderData.error||"Unable to create payment order.");
     }
-
-    // Open Razorpay Checkout
-    const options = {
-      key: orderData.keyId,
-
-      amount: orderData.amount,
-
-      currency: orderData.currency || "INR",
-
-      name: "IDWP",
-
-      description: p.name + " Package",
-
-      order_id: orderData.orderId,
-
-      prefill: {
-        name: user.displayName || "",
-        email: user.email || ""
-      },
-
-      handler: async function (response) {
-        try {
-          // Verify payment on server
-          const verifyResponse = await fetch(
-            "/api/verify-payment",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + idToken
-              },
-              body: JSON.stringify({
-                razorpay_order_id:
-                  response.razorpay_order_id,
-
-                razorpay_payment_id:
-                  response.razorpay_payment_id,
-
-                razorpay_signature:
-                  response.razorpay_signature
-              })
-            }
-          );
-
-          const verifyData =
-            await verifyResponse.json();
-
-          if (!verifyResponse.ok || !verifyData.success) {
-            throw new Error(
-              verifyData.error ||
-              "Payment verification failed."
-            );
+    if(!orderData.keyId || !orderData.orderId || !orderData.amount){
+      throw new Error("Invalid payment order received from server.");
+    }
+    const options={
+      key:orderData.keyId,
+      amount:orderData.amount,
+      currency:orderData.currency||"INR",
+      name:"IDWP",
+      description:p.name+" Package",
+      order_id:orderData.orderId,
+      prefill:{name:user.displayName||"",email:user.email||""},
+      theme:{color:"#2563eb"},
+      handler:async response=>{
+        try{
+          const verifyToken=await user.getIdToken(true);
+          const verifyResponse=await fetch("/api/verify-payment",{
+            method:"POST",
+            headers:{
+              "Content-Type":"application/json",
+              "Authorization":"Bearer "+verifyToken
+            },
+            body:JSON.stringify(response)
+          });
+          const verifyData=await verifyResponse.json().catch(()=>({}));
+          if(!verifyResponse.ok || !verifyData.success){
+            throw new Error(verifyData.error||"Payment verification failed.");
           }
-
-          alert(
-            "Payment successful!\n\n" +
-            "Payment ID: " +
-            response.razorpay_payment_id +
-            "\n\n" +
-            "Your package is now ACTIVE."
-          );
-
-          // Refresh user data
+          alert("Payment successful! Your package is now ACTIVE.");
           await loadUser();
-
-          showTab("package");
-
-        } catch (error) {
-          console.error(
-            "Payment verification error:",
-            error
-          );
-
-          alert(
-            "Payment received, but verification failed.\n\n" +
-            "Payment ID: " +
-            response.razorpay_payment_id +
-            "\n\n" +
-            "Please contact IDWP Admin."
-          );
+          await dashTab("package");
+        }catch(error){
+          console.error("Payment verification error:",error);
+          alert("Payment received, but verification failed.\nPayment ID: "+(response.razorpay_payment_id||"")+"\n\nPlease contact admin.");
         }
       },
-
-      modal: {
-        ondismiss: function () {
-          console.log("Razorpay checkout closed.");
-        }
-      }
+      modal:{ondismiss:function(){console.log("Razorpay checkout closed.");}}
     };
-
-    const rzp = new Razorpay(options);
-
+    const rzp=new window.Razorpay(options);
     rzp.open();
-
-  } catch (error) {
-    console.error(
-      "Buy package error:",
-      error
-    );
-
-    alert(
-      error.message ||
-      "Unable to start payment. Please try again."
-    );
+  }catch(error){
+    console.error("Buy package error:",error);
+    alert(error.message||"Payment could not be started.");
   }
 }
-
-window.buyPackage = buyPackage;
-
 window.buyPackage=buyPackage;
-async function claimFreePackage() {
-  if (!requireFirebase()) return;
 
-  const user = auth.currentUser;
-
-  if (!user) {
-    alert("Please Login or Register first.");
-    return;
-  }
-
-  try {
-    const userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
-
-    if (!snap.exists()) {
-      alert("User account not found.");
-      return;
-    }
-
-    const data = snap.data();
-
-    const directCount = Number(
-      data.directReferralCount || 0
-    );
-
-    const currentLevel = Math.min(
-      directCount,
-      60
-    );
-
-    // Free package requires 8 verified direct buyers
-    if (directCount < 8) {
-      alert(
-        "You need 8 verified direct package buyers first."
-      );
-      return;
-    }
-
-    if (data.freePackageClaimed === true) {
-      alert("Free package has already been claimed.");
-      return;
-    }
-
-    // Level 8 commission = 30%
-    await updateDoc(userRef, {
-      level: currentLevel,
-      referralCommissionRate:
-        currentLevel >= 51 ? 0.50 :
-        currentLevel >= 31 ? 0.48 :
-        currentLevel >= 26 ? 0.45 :
-        currentLevel >= 16 ? 0.43 :
-        currentLevel >= 11 ? 0.40 :
-        currentLevel >= 9 ? 0.35 :
-        currentLevel >= 5 ? 0.30 :
-        0.20,
-
-      freePackageEligible: true,
-      freePackageClaimed: true,
-      freePackageClaimedAt: serverTimestamp()
-    });
-
-    alert(
-      "Congratulations! 🎉\n\n" +
-      "You have successfully claimed your free package.\n\n" +
-      "Your current Level: " + currentLevel +
-      "\n" +
-      "Direct Commission Rate: " +
-      (
-        (
-          currentLevel >= 51 ? 0.50 :
-          currentLevel >= 31 ? 0.48 :
-          currentLevel >= 26 ? 0.45 :
-          currentLevel >= 16 ? 0.43 :
-          currentLevel >= 11 ? 0.40 :
-          currentLevel >= 9 ? 0.35 :
-          currentLevel >= 5 ? 0.30 :
-          0.20
-        ) * 100
-      ) +
-      "%"
-    );
-
-    await loadUser();
-    showTab("referrals");
-
-  } catch (error) {
-    console.error("Free package claim error:", error);
-
-    alert(
-      error.message ||
-      "Unable to claim free package."
-    );
-  }
+async function claimFreePackage(){
+if(!requireFirebase()||!auth.currentUser)return;
+try{
+const ref=doc(db,"users",auth.currentUser.uid),s=await getDoc(ref);if(!s.exists())return;
+const u=s.data(),count=Number(u.directReferralCount||0);
+if(count<8&&!u.freePackageEligible){alert("You need 8 verified direct paid referrals first.");return}
+if(u.freePackageClaimed){alert("Free package already claimed.");return}
+await updateDoc(ref,{freePackageEligible:true,freePackageClaimed:true,referralCommissionRate:25});
+alert("Free package reward recorded. Direct commission is now 25%.");
+await dashTab("referrals");
+}catch(e){alert(e.message)}
 }
-
-window.claimFreePackage = claimFreePackage;
+window.claimFreePackage=claimFreePackage;
 
 async function dashTab(tab){
 if(!requireFirebase())return;
@@ -660,47 +409,10 @@ d.innerHTML=`<div class="card"><h2>Withdrawal History</h2>${h||'<p class="muted"
 window.dashTab=dashTab;
 
 async function submitWork(title){
-  if(!requireFirebase() || !auth.currentUser) return;
-
-  try{
-    const userRef=doc(db,"users",auth.currentUser.uid);
-    const snap=await getDoc(userRef);
-
-    if(!snap.exists()){
-      alert("User account not found.");
-      return;
-    }
-
-    const user=snap.data();
-
-    // Package purchase is required before doing work
-    if(user.packageActive !== true){
-      alert(
-        "Please purchase and activate a package first.\n\n" +
-        "You cannot submit work before package activation."
-      );
-      dashTab("package");
-      return;
-    }
-
-    await addDoc(
-      collection(db,"users",auth.currentUser.uid,"tasks"),
-      {
-        title:title,
-        status:"Pending",
-        createdAt:serverTimestamp()
-      }
-    );
-
-    alert("Work submitted for verification.");
-    dashTab("work");
-
-  }catch(e){
-    console.error("Submit work error:",e);
-    alert(e.message || "Unable to submit work.");
-  }
+if(!requireFirebase()||!auth.currentUser)return;
+try{await addDoc(collection(db,"users",auth.currentUser.uid,"tasks"),{title,status:"Pending",createdAt:serverTimestamp()});
+alert("Work submitted for verification.");dashTab("work")}catch(e){alert(e.message)}
 }
-
 window.submitWork=submitWork;
 
 async function requestWithdrawal(){
