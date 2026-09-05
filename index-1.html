@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>IDWP — Digital Work & Earn | LIVE</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#172033}
+header{background:#111827;color:#fff;padding:16px 5%;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+.logo{font-size:25px;font-weight:800}.founder{font-size:13px;opacity:.8}
+button,.btn{border:0;border-radius:10px;padding:11px 16px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}
+.success{background:#16a34a}.wa{background:#16a34a}.danger{background:#dc2626}
+.hero{padding:55px 5%;background:linear-gradient(135deg,#111827,#1d4ed8);color:#fff}.hero h1{font-size:42px;margin:0 0 12px}
+.container{max-width:1150px;margin:auto;padding:28px 5%}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 5px 20px #0000000d}
+.price{font-size:26px;font-weight:800;margin:8px 0}.muted,.smalltext{color:#667085;font-size:14px}
+input,select{width:100%;padding:12px;border:1px solid #d8dee9;border-radius:9px;margin:7px 0 12px;font:inherit}
+.hidden{display:none}.stat{font-size:27px;font-weight:800}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tabs button{background:#e8eefc;color:#172033}.task{border:1px solid #e3e8f0;padding:14px;border-radius:12px;margin:10px 0}
+.badge{display:inline-block;padding:5px 9px;border-radius:20px;background:#e9f7ef;color:#137333;font-size:12px;font-weight:700}
+.badge.pending{background:#fff8db;color:#946200}.notice{background:#fff8db;padding:13px;border-radius:10px;border:1px solid #f1df8a}
+.divider{border:0;border-top:1px solid #e8ebf0;margin:18px 0}footer{background:#111827;color:#fff;padding:30px 5%;margin-top:30px}
+.status{margin-top:10px;font-weight:700}.error{color:#b42318}.success-text{color:#137333}
+</style>
+</head>
+<body>
+
+<header>
+<div><div class="logo">IDWP</div><div class="founder">Founder: Ibrahim</div></div>
+<nav><button type="button" onclick="show('auth')">Register / Login</button></nav>
+</header>
+
+<section class="hero"><div class="container">
+<h1>Digital Work & Earn with IDWP</h1>
+<p>Register with IDWP, view available work opportunities, submit completed work for verification and track approved earnings.</p>
+<button type="button" class="btn" onclick="show('auth')">Register / Login</button>
+<button type="button" class="btn wa" onclick="whatsapp()">WhatsApp Support</button>
+</div></section>
+
+<main class="container">
+
+<section id="home">
+<div class="card">
+<h2>🆓 Basic Work</h2>
+<p>Basic work opportunities can be displayed without requiring a package purchase. Package-specific access can be controlled after verification.</p>
+<button type="button" class="btn success" onclick="show('auth')">Start Work</button>
+<button type="button" class="btn" onclick="show('auth');focusReferral()">Join with Referral</button>
+</div>
+
+<h2>Packages <span class="badge">LIVE</span></h2><div class="grid" id="packages"></div>
+<div class="notice"><b>Important:</b> Earnings depend on completed and verified work. No income is guaranteed by registration, referral or package selection.</div>
+</section>
+
+<section id="auth" class="hidden"><div class="grid">
+
+<div class="card">
+<h2>Create IDWP Account</h2>
+<form id="regForm">
+<input id="name" placeholder="Full Name" required>
+<input id="mobile" placeholder="Mobile Number" required>
+<input id="waNumber" placeholder="WhatsApp Number" required>
+<input id="email" type="email" placeholder="Email" required>
+<input id="password" type="password" placeholder="Password (minimum 6 characters)" minlength="6" required>
+<input id="ref" placeholder="Referral ID (required)" required>
+<select id="skill"><option value="">Select Skill / Package</option></select>
+<button class="btn" type="submit">Create Account</button>
+</form>
+<div id="regStatus" class="status"></div>
+</div>
+
+<div class="card">
+<h2>Login</h2>
+<form id="loginForm">
+<input id="loginEmail" type="email" placeholder="Email" required>
+<input id="loginPassword" type="password" placeholder="Password" required>
+<button class="btn success" type="submit">Login</button>
+</form>
+<div id="loginStatus" class="status"></div>
+
+<hr class="divider">
+<h3>Forgot Password?</h3>
+<input id="resetEmail" type="email" placeholder="Registered Email">
+<button type="button" class="btn" onclick="resetPassword()">Send Reset Link</button>
+<div id="resetStatus" class="status"></div>
+</div>
+
+</div></section>
+
+<section id="dashboard" class="hidden">
+<div class="tabs">
+<button type="button" onclick="dashTab('overview')">Overview</button>
+<button type="button" onclick="dashTab('profile')">Profile</button>
+<button type="button" onclick="dashTab('package')">Package</button>
+<button type="button" onclick="dashTab('work')">Work & Earn</button>
+<button type="button" onclick="dashTab('earnings')">Earnings</button>
+<button type="button" onclick="dashTab('referrals')">👥 Referral Center</button>
+<button type="button" onclick="dashTab('wallet')">Wallet</button>
+<button type="button" onclick="dashTab('history')">History</button>
+<button type="button" onclick="logout()">Logout</button>
+</div>
+<div id="dashContent"></div>
+</section>
+
+</main>
+
+<footer><strong>IDWP</strong> — Digital Work & Earn<br>Founder: Ibrahim<br>WhatsApp: +91 7320976061</footer>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail,onAuthStateChanged,signOut}
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import {getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,getDocs,query,where,serverTimestamp}
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyAQAWeYvB7chJXZJRBt7J46DcDeV684RyI",
+authDomain:"idwp-41ab8.firebaseapp.com",
+projectId:"idwp-41ab8",
+storageBucket:"idwp-41ab8.firebasestorage.app",
+messagingSenderId:"63543031077",
+appId:"1:63543031077:web:825c547e3f3526408496cc",
+measurementId:"G-WTLL317BEK"
+};
+
+const ADMIN_WA="917320976061";
+
+
+const packages=[
+{name:"Lead Generation",price:460,work:["Find eligible leads","Verify lead details","Submit lead sheet"]},
+{name:"Commission Skill",price:400,work:["Complete sales skill exercise","Prepare client pitch","Submit assignment"]},
+{name:"Data Entry",price:488,work:["Enter records","Clean duplicate entries","Submit spreadsheet"]},
+{name:"Video Editing",price:500,work:["Edit short clip","Add captions","Submit final video"]},
+{name:"Freelancing",price:350,work:["Complete client brief","Prepare proposal","Submit project"]},
+{name:"Content Creation",price:300,work:["Write content","Create draft","Submit final content"]}
+];
+
+const REFERRAL_RULES={
+ requiredDirectReferrals:8,maxLevel:60,
+ directRateForLevel(level){
+  level=Number(level||0);
+  if(level>=51)return .50;if(level>=31)return .48;if(level>=26)return .45;
+  if(level>=16)return .43;if(level>=11)return .40;if(level>=9)return .35;
+  if(level>=5)return .30;return .20;
+ }
+};
+
+let auth=null,db=null,firebaseReady=false;
+let authReadyResolve;
+const authReadyPromise=new Promise(resolve=>{authReadyResolve=resolve});
+
+async function getLoggedInUser(timeout=5000){
+  if(auth && auth.currentUser) return auth.currentUser;
+  if(!auth) return null;
+  try{
+    const user=await Promise.race([
+      authReadyPromise.then(()=>auth.currentUser||null),
+      new Promise(resolve=>setTimeout(()=>resolve(auth.currentUser||null),timeout))
+    ]);
+    return user||auth.currentUser||null;
+  }catch(e){return auth.currentUser||null;}
+}
+
+function money(n){return Number(n||0).toFixed(0)}
+function generateID(){return "IDWP"+Math.floor(100000+Math.random()*900000)}
+
+try{
+const app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);firebaseReady=true;
+onAuthStateChanged(auth,async u=>{
+if(authReadyResolve){authReadyResolve(true);authReadyResolve=null;}
+if(!u)return;
+try{const s=await getDoc(doc(db,"users",u.uid));if(s.exists()){window.currentUser=s.data();show("dashboard")}}
+catch(e){console.error(e)}
+});
+}catch(e){console.error(e)}
+
+function requireFirebase(){
+if(!firebaseReady){alert("Firebase is not ready. Please check Firebase configuration.");return false}
+return true;
+}
+
+function show(id){
+const a=document.getElementById("auth"),d=document.getElementById("dashboard");
+if(!a||!d)return;
+a.classList.add("hidden");d.classList.add("hidden");
+if(id==="auth"){a.classList.remove("hidden");a.style.display="block";d.style.display="none";setTimeout(()=>a.scrollIntoView({behavior:"smooth"}),50)}
+if(id==="dashboard"){d.classList.remove("hidden");d.style.display="block";a.style.display="none";dashTab("overview")}
+}
+window.show=show;
+
+function whatsapp(){window.open("https://wa.me/"+ADMIN_WA+"?text="+encodeURIComponent("Hello IDWP Support"),"_blank")}
+window.whatsapp=whatsapp;
+function focusReferral(){document.getElementById("ref").focus()}
+window.focusReferral=focusReferral;
+
+function renderPackages(){
+document.getElementById("packages").innerHTML=packages.map(p=>`
+<div class="card"><h3>${p.name}</h3><div class="price">₹${p.price}</div>
+<p class="muted">Eligible ${p.name.toLowerCase()} work opportunities.</p>
+<ul>${p.work.map(w=>`<li>${w}</li>`).join("")}</ul>
+<button type="button" class="btn" onclick="selectPackage('${p.name}')">Choose Package</button>
+<button type="button" class="btn success" onclick="buyPackage('${p.name}')">Buy Now ₹${p.price}</button>
+</div>`).join("");
+document.getElementById("skill").innerHTML='<option value="">Select Skill / Package</option>'+
+packages.map(p=>`<option value="${p.name}">${p.name}</option>`).join("");
+}
+renderPackages();
+
+function selectPackage(name){show("auth");document.getElementById("skill").value=name}
+window.selectPackage=selectPackage;
+
+const refFromURL=new URLSearchParams(location.search).get("ref");
+if(refFromURL)document.getElementById("ref").value=refFromURL;
+
+document.getElementById("regForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!requireFirebase())return;
+ const st=document.getElementById("regStatus");
+ st.textContent="Checking Referral ID...";st.className="status";
+ const name=document.getElementById("name").value.trim();
+ const mobile=document.getElementById("mobile").value.trim();
+ const whatsapp=document.getElementById("waNumber").value.trim();
+ const email=document.getElementById("email").value.trim();
+ const password=document.getElementById("password").value;
+ const referralId=document.getElementById("ref").value.trim().toUpperCase();
+ const selectedName=document.getElementById("skill").value;
+ const selected=packages.find(p=>p.name===selectedName);
+
+ if(!referralId){st.textContent="Referral ID is required.";st.className="status error";return}
+ if(!selected){st.textContent="Please select a skill / package.";st.className="status error";return}
+
+ try{
+   const rq=await getDocs(query(collection(db,"users"),where("userID","==",referralId)));
+   if(rq.empty){
+     st.textContent="Invalid Referral ID. Please enter an existing IDWP Referral ID.";
+     st.className="status error";return;
+   }
+ }catch(error){
+   console.error(error);st.textContent="Unable to verify Referral ID. Please try again.";
+   st.className="status error";return;
+ }
+
+ st.textContent="Creating account...";
+ try{
+   const result=await createUserWithEmailAndPassword(auth,email,password);
+   const userID=generateID();
+   await setDoc(doc(db,"users",result.user.uid),{
+     uid:result.user.uid,userID,name,mobile,whatsapp,email:result.user.email,
+     referral:referralId,package:selectedName,packagePrice:selected.price,
+     packageActive:false,earnings:0,workEarnings:0,referralEarnings:0,pending:0,
+     directReferralCount:0,level:0,referralCommissionRate:0.20,
+     freePackageEligible:false,freePackageClaimed:false,createdAt:serverTimestamp()
+   });
+   st.textContent="Registration successful. Your ID: "+userID;
+   st.className="status success-text";
+   show("dashboard");
+   await loadUser();
+ }catch(error){
+   console.error(error);st.textContent=error.message;st.className="status error";
+ }
+});
+
+document.getElementById("loginForm").addEventListener("submit",async e=>{
+e.preventDefault();if(!requireFirebase())return;
+const st=document.getElementById("loginStatus");st.textContent="Logging in...";
+try{
+await signInWithEmailAndPassword(auth,document.getElementById("loginEmail").value.trim(),document.getElementById("loginPassword").value);
+st.textContent="Login successful.";st.className="status success-text";
+}catch(error){st.textContent=error.message;st.className="status error"}
+});
+
+async function resetPassword(){
+if(!requireFirebase())return;
+const email=document.getElementById("resetEmail").value.trim(),st=document.getElementById("resetStatus");
+if(!email){st.textContent="Please enter your registered email.";st.className="status error";return}
+try{await sendPasswordResetEmail(auth,email);st.textContent="Reset link sent. Check your email.";st.className="status success-text"}
+catch(e){st.textContent=e.message;st.className="status error"}
+}
+window.resetPassword=resetPassword;
+
+async function loadUser(){
+ const u=await getLoggedInUser();
+ if(!u)return null;
+ const s=await getDoc(doc(db,"users",u.uid));
+ if(!s.exists())return null;
+ window.currentUser=s.data();
+ return s.data();
+}
+
+async function buyPackage(name){
+ if(!requireFirebase())return;
+ const p=packages.find(x=>x.name===name);
+ if(!p){alert("Package not found.");return;}
+
+ let user=auth.currentUser;
+
+ // Give Firebase a moment to restore an existing login session.
+ if(!user){
+   user=await new Promise(resolve=>{
+     let finished=false;
+     const timer=setTimeout(()=>{
+       if(!finished){finished=true;resolve(auth.currentUser||null);}
+     },3000);
+     const unsubscribe=onAuthStateChanged(auth,u=>{
+       if(u&&!finished){
+         finished=true;clearTimeout(timer);unsubscribe();resolve(u);
+       }
+     });
+   });
+ }
+
+ if(!user){
+   show("auth");
+   document.getElementById("skill").value=name;
+   alert("Please login first, then tap Buy Now again.");
+   return;
+ }
+
+ if(!window.Razorpay){
+   alert("Razorpay checkout did not load. Please refresh and try again.");
+   return;
+ }
+
+ try{
+   const idToken=await user.getIdToken(true);
+   const orderResponse=await fetch("/api/create-order",{
+     method:"POST",
+     headers:{
+       "Content-Type":"application/json",
+       "Authorization":"Bearer "+idToken
+     },
+     body:JSON.stringify({packageName:p.name})
+   });
+   const orderData=await orderResponse.json().catch(()=>({}));
+   if(!orderResponse.ok||!orderData.success)
+     throw new Error(orderData.error||"Unable to create payment order.");
+   if(!orderData.keyId||!orderData.orderId||!orderData.amount)
+     throw new Error("Invalid payment order received from server.");
+
+   const options={
+     key:orderData.keyId,
+     amount:orderData.amount,
+     currency:orderData.currency||"INR",
+     name:"IDWP",
+     description:p.name+" Package",
+     order_id:orderData.orderId,
+     prefill:{name:user.displayName||"",email:user.email||""},
+     handler:async response=>{
+       try{
+         const verifyToken=await user.getIdToken(true);
+         const verifyResponse=await fetch("/api/verify-payment",{
+           method:"POST",
+           headers:{
+             "Content-Type":"application/json",
+             "Authorization":"Bearer "+verifyToken
+           },
+           body:JSON.stringify(response)
+         });
+         const verifyData=await verifyResponse.json().catch(()=>({}));
+         if(!verifyResponse.ok||!verifyData.success)
+           throw new Error(verifyData.error||"Payment verification failed.");
+         alert("Payment successful! Your package is now ACTIVE.");
+         await loadUser();
+         await dashTab("package");
+       }catch(error){
+         console.error(error);
+         alert("Payment received, but verification failed.\nPayment ID: "+
+           (response.razorpay_payment_id||"")+"\n\nPlease contact IDWP admin.");
+       }
+     },
+     modal:{ondismiss:function(){console.log("Razorpay checkout closed.");}}
+   };
+   new window.Razorpay(options).open();
+ }catch(error){
+   console.error(error);
+   alert(error.message||"Payment could not be started.");
+ }
+}
+window.buyPackage=buyPackage;
+
+async function claimFreePackage(){
+ if(!requireFirebase())return;
+ const uAuth=await getLoggedInUser();
+ if(!uAuth){show("auth");return;}
+ try{
+  const ref=doc(db,"users",uAuth.uid),s=await getDoc(ref);
+  if(!s.exists())return;
+  const u=s.data(),count=Number(u.directReferralCount||0),level=Math.min(count,60);
+  if(count<8){alert("You need 8 verified direct paid referrals first.");return}
+  if(u.freePackageClaimed){alert("Free package already claimed.");return}
+  const rate=REFERRAL_RULES.directRateForLevel(level);
+  await updateDoc(ref,{freePackageEligible:true,freePackageClaimed:true,level,referralCommissionRate:rate});
+  alert("Free package reward recorded. Your current direct commission is "+Math.round(rate*100)+"%.");
+  await dashTab("referrals");
+ }catch(e){alert(e.message)}
+}
+window.claimFreePackage=claimFreePackage;
+
+async function dashTab(tab){
+if(!requireFirebase())return;
+const u=await getLoggedInUser();
+if(!u){show("auth");return}
+const user=await loadUser();
+if(!user){show("auth");return}
+const d=document.getElementById("dashContent");
+
+if(tab==="overview")d.innerHTML=`<div class="grid">
+<div class="card"><div class="muted">User ID</div><div class="stat">${user.userID||"-"}</div></div>
+<div class="card"><div class="muted">Work Earnings</div><div class="stat">₹${money(user.workEarnings)}</div></div>
+<div class="card"><div class="muted">Referral Earnings</div><div class="stat">₹${money(user.referralEarnings)}</div></div>
+<div class="card"><div class="muted">Total Earnings</div><div class="stat">₹${money(user.earnings)}</div></div>
+</div><div class="card" style="margin-top:16px"><h2>Welcome, ${user.name||"User"}</h2>
+<p>Package: <b>${user.package||"No Package"}</b></p><p>Status: <b>${user.packageActive?"Active":"Not Active"}</b></p>
+<p>Referral ID: <b>${user.userID||"-"}</b></p></div>`;
+
+if(tab==="profile")d.innerHTML=`<div class="card"><h2>Profile</h2><div class="grid">
+<div><b>Name</b><p>${user.name||"-"}</p></div><div><b>Mobile</b><p>${user.mobile||"-"}</p></div>
+<div><b>WhatsApp</b><p>${user.whatsapp||"-"}</p></div><div><b>Email</b><p>${user.email||"-"}</p></div>
+<div><b>User ID</b><p>${user.userID||"-"}</p></div><div><b>Referral</b><p>${user.referral||"Direct"}</p></div>
+</div></div>`;
+
+if(tab==="package"){
+const p=packages.find(x=>x.name===user.package);
+d.innerHTML=`<div class="card"><h2>📦 My Package</h2>
+<p><b>Package:</b> ${user.package||"No Package Selected"}</p><p><b>Price:</b> ₹${p?p.price:0}</p>
+<p><b>Status:</b> <span class="badge">${user.packageActive?"ACTIVE":"NOT ACTIVE"}</span></p>
+${p?`<ul>${p.work.map(w=>`<li>${w}</li>`).join("")}</ul><button type="button" class="btn success" onclick="buyPackage('${p.name}')">Buy Now ₹${p.price}</button>`:""}
+<hr class="divider"><div class="notice">Payment is activated only after secure server-side verification.
+<br><br>Referral commissions are calculated securely by the server after verified payment.</div>
+<br><button type="button" class="btn wa" onclick="whatsapp()">Contact Admin on WhatsApp</button></div>`;
+}
+
+if(tab==="work")d.innerHTML=`<div class="card"><h2>Work & Earn</h2>
+<div class="notice">Submit genuine completed work. Earnings should only be credited after verification.</div>
+<div class="task"><b>Basic Data Checking</b><p>Check and verify assigned data.</p><button type="button" class="btn" onclick="submitWork('Basic Data Checking')">Submit Work</button></div>
+<div class="task"><b>Basic Content Task</b><p>Create assigned content.</p><button type="button" class="btn" onclick="submitWork('Basic Content Task')">Submit Work</button></div>
+<div class="task"><b>Lead Verification</b><p>Verify assigned leads.</p><button type="button" class="btn" onclick="submitWork('Lead Verification')">Submit Work</button></div>
+</div>`;
+
+if(tab==="earnings")d.innerHTML=`<div class="grid">
+<div class="card"><div class="muted">Work Earnings</div><div class="stat">₹${money(user.workEarnings)}</div></div>
+<div class="card"><div class="muted">Referral Earnings</div><div class="stat">₹${money(user.referralEarnings)}</div></div>
+<div class="card"><div class="muted">Total Earnings</div><div class="stat">₹${money(user.earnings)}</div></div>
+</div>`;
+
+if(tab==="referrals"){
+try{
+ const rs=await getDocs(query(collection(db,"users"),where("referral","==",user.userID)));
+ const count=Math.max(Number(user.directReferralCount||0),rs.size);
+ const level=Math.min(count,60);
+ const rate=REFERRAL_RULES.directRateForLevel(Math.max(level,1));
+ const link=location.origin+location.pathname+"?ref="+user.userID;
+ d.innerHTML=`<div class="grid">
+ <div class="card"><h2>👥 Referral Center</h2>
+ <p>Your Referral ID: <b>${user.userID}</b></p>
+ <p>Verified direct paid referrals: <b>${count}/60</b></p>
+ <p>Current Level: <b>${level}</b></p>
+ <p>Direct commission: <b>${Math.round(rate*100)}%</b></p>
+ <p>Generation 2: <b>15%</b> • Generation 3: <b>5%</b></p>
+ <p>Generation 4: <b>3%</b> • Generation 5: <b>2%</b></p></div>
+ <div class="card"><h2>🎁 8 Direct Referral Reward</h2>
+ <p>Status: <span class="badge ${count>=8?"":"pending"}">${count>=8?"FREE PACKAGE ELIGIBLE":"KEEP REFERRING"}</span></p>
+ <p class="muted">Complete 8 verified direct paid referrals to become eligible for one free package.</p>
+ ${count>=8&&!user.freePackageClaimed?'<button type="button" class="btn success" onclick="claimFreePackage()">Claim Free Package</button>':user.freePackageClaimed?'<span class="badge">FREE PACKAGE CLAIMED</span>':''}</div>
+ </div>
+ <div class="card" style="margin-top:16px"><h3>Referral Commission Levels</h3>
+ <ul><li>Level 1–4 → 20%</li><li>Level 5–8 → 30%</li><li>Level 9–10 → 35%</li>
+ <li>Level 11–15 → 40%</li><li>Level 16–25 → 43%</li><li>Level 26–30 → 45%</li>
+ <li>Level 31–50 → 48%</li><li>Level 51–60 → 50%</li></ul>
+ <p><b>Generation 1:</b> current level rate</p>
+ <p><b>Generation 2:</b> 15% &nbsp; <b>Generation 3:</b> 5% &nbsp; <b>Generation 4:</b> 3% &nbsp; <b>Generation 5:</b> 2%</p>
+ <div class="notice">Level increases only from verified direct paid package buyers. Level 60 is the maximum.</div>
+ <hr class="divider"><h3>Referral Link</h3><input value="${link}" readonly></div>`;
+}catch(e){d.innerHTML='<div class="card"><h2>Referral Center</h2><div class="notice">Referral data could not be loaded.</div></div>'}
+}
+
+if(tab==="wallet")d.innerHTML=`<div class="card"><h2>💰 Wallet & Self Withdrawal</h2>
+<div class="grid">
+<div><div class="muted">Available Earnings</div><div class="stat">₹${money(user.earnings)}</div></div>
+<div><div class="muted">Referral Earnings</div><div class="stat">₹${money(user.referralEarnings)}</div></div>
+<div><div class="muted">Work Earnings</div><div class="stat">₹${money(user.workEarnings)}</div></div>
+</div><hr class="divider">
+<h3>Withdraw to your UPI</h3>
+<input id="upi" placeholder="Your UPI ID (example@upi)">
+<input id="withdrawAmount" type="number" min="100" step="1" placeholder="Withdrawal Amount (minimum ₹100)">
+<button type="button" class="btn success" onclick="requestWithdrawal()">Withdraw Now</button>
+<div id="withdrawStatus" class="status"></div>
+<p class="smalltext">Your available earnings are checked server-side. The payout is sent through the configured RazorpayX payout account. Never enter your Razorpay password or API secret here.</p></div>`;
+
+if(tab==="history"){
+try{
+const rs=await getDocs(collection(db,"users",u.uid,"withdrawals"));let h="";
+rs.forEach(x=>{const v=x.data();h+=`<div class="task">₹${money(v.amount)} — ${v.upi||"-"} — ${v.status||"Pending"}</div>`});
+d.innerHTML=`<div class="card"><h2>Withdrawal History</h2>${h||'<p class="muted">No withdrawal history.</p>'}</div>`;
+}catch(e){d.innerHTML='<div class="card"><h2>Withdrawal History</h2><p class="error">Unable to load history.</p></div>'}
+}
+}
+window.dashTab=dashTab;
+
+async function submitWork(title){
+ if(!requireFirebase())return;
+ const uAuth=await getLoggedInUser();
+ if(!uAuth){show("auth");return;}
+ try{
+   const ref=doc(db,"users",uAuth.uid);
+   const snap=await getDoc(ref);
+   if(!snap.exists()){alert("User account not found.");return;}
+   const user=snap.data();
+   if(user.packageActive!==true){
+     alert("Please purchase and activate a package first.\n\nYou cannot submit work before package activation.");
+     await dashTab("package");return;
+   }
+   await addDoc(collection(db,"users",uAuth.uid,"tasks"),{
+     title:title,status:"Pending",createdAt:serverTimestamp()
+   });
+   alert("Work submitted for verification.");
+   await dashTab("work");
+ }catch(e){console.error(e);alert(e.message||"Unable to submit work.");}
+}
+window.submitWork=submitWork;
+
+async function requestWithdrawal(){
+ if(!requireFirebase())return;
+ const u=await getLoggedInUser();
+ if(!u){show("auth");return}
+ const upi=document.getElementById("upi")?.value.trim().toLowerCase();
+ const amount=Number(document.getElementById("withdrawAmount")?.value);
+ const st=document.getElementById("withdrawStatus");
+ if(!upi||!/^[a-zA-Z0-9._-]{2,}@[a-zA-Z]{2,}$/.test(upi)){alert("Please enter a valid UPI ID.");return}
+ if(!Number.isInteger(amount)||amount<100){alert("Minimum withdrawal amount is ₹100.");return}
+ if(st){st.className="status";st.textContent="Checking balance and starting payout...";}
+ try{
+   const token=await u.getIdToken(true);
+   const r=await fetch("/api/request-withdrawal",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({upi,amount})});
+   const data=await r.json().catch(()=>({}));
+   if(!r.ok||!data.success)throw new Error(data.error||"Withdrawal could not be started.");
+   if(st){st.className="status success-text";st.textContent="Withdrawal started. Status: "+(data.status||"processing")+(data.payoutId?" • "+data.payoutId:"");}
+   alert("Withdrawal started successfully. Status: "+(data.status||"processing"));
+   await dashTab("history");
+ }catch(e){
+   console.error(e);if(st){st.className="status error";st.textContent=e.message||"Withdrawal failed.";}alert(e.message||"Withdrawal failed.");
+ }
+}
+window.requestWithdrawal=requestWithdrawal;
+
+async function logout(){if(firebaseReady)await signOut(auth);location.reload()}
+window.logout=logout;
+</script>
+</body>
+</html>
