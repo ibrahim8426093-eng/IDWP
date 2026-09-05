@@ -200,16 +200,25 @@ function focusReferral(){document.getElementById("ref").focus()}
 window.focusReferral=focusReferral;
 
 function renderPackages(){
-document.getElementById("packages").innerHTML=packages.map(p=>`
-<div class="card"><h3>${p.name}</h3><div class="price">₹${p.price}</div>
-<p class="muted">Eligible ${p.name.toLowerCase()} work opportunities.</p>
-<ul>${p.work.map(w=>`<li>${w}</li>`).join("")}</ul>
-<button type="button" class="btn" onclick="selectPackage('${p.name}')">Choose Package</button>
-<button type="button" class="btn success" onclick="buyPackage('${p.name}')">Buy Now ₹${p.price}</button>
-</div>`).join("");
-document.getElementById("skill").innerHTML='<option value="">Select Skill / Package</option>'+
-packages.map(p=>`<option value="${p.name}">${p.name}</option>`).join("");
+  document.getElementById("packages").innerHTML=packages.map(p=>`
+    <div class="card">
+      <h3>${p.name}</h3>
+      <div class="price">₹${p.price}</div>
+      <p class="muted">Eligible ${p.name.toLowerCase()} work opportunities.</p>
+      <ul>${p.work.map(w=>`<li>${w}</li>`).join("")}</ul>
+      <button type="button"
+        class="btn success"
+        onclick="buyPackage('${p.name}')">
+        Buy Now ₹${p.price}
+      </button>
+    </div>
+  `).join("");
+
+  document.getElementById("skill").innerHTML =
+    '<option value="">Select Skill / Package</option>' +
+    packages.map(p=>`<option value="${p.name}">${p.name}</option>`).join("");
 }
+
 renderPackages();
 
 function selectPackage(name){show("auth");document.getElementById("skill").value=name}
