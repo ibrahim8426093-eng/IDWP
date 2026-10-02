@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<title>IDWP — Digital Work & Earn</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#172033}
+header{background:#111827;color:#fff;padding:15px 5%;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+.logo{font-size:27px;font-weight:900}.founder{font-size:12px;opacity:.8}
+button,.btn{border:0;border-radius:10px;padding:11px 16px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}.success{background:#16a34a}.wa{background:#16a34a!important}
+.hero{padding:55px 5%;background:linear-gradient(135deg,#111827,#1d4ed8);color:#fff}.hero h1{font-size:42px;margin:0 0 12px}
+.hero p{max-width:760px;line-height:1.6}.container{max-width:1150px;margin:auto;padding:28px 5%}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.dash-layout{display:grid;grid-template-columns:245px minmax(0,1fr);gap:18px;align-items:start}.dash-sidebar{position:sticky;top:82px;background:#fff;border-radius:18px;padding:14px;box-shadow:0 5px 20px #0000000d}.dash-user{display:flex;align-items:center;gap:11px;padding:8px 8px 14px;border-bottom:1px solid #e8ebf0;margin-bottom:10px}.avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#e8eefc;display:flex;align-items:center;justify-content:center;font-weight:900;color:#1d4ed8;overflow:hidden;flex:0 0 48px}.avatar img{width:100%;height:100%;object-fit:cover}.dash-user-name{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dash-user-id{font-size:11px;color:#667085;margin-top:3px}.side-nav{display:flex;flex-direction:column;gap:5px}.side-nav button{width:100%;text-align:left;background:transparent;color:#172033;padding:11px 12px;border-radius:10px}.side-nav button:hover,.side-nav button.active{background:#e8eefc;color:#1d4ed8}.side-nav .side-logout{margin-top:8px;background:#fff1f1;color:#b42318}.profile-avatar-wrap{text-align:center;margin-bottom:18px}.profile-avatar-large{width:105px;height:105px;margin:0 auto 10px;border-radius:50%;overflow:hidden;background:#e8eefc;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;color:#1d4ed8}.profile-avatar-large img{width:100%;height:100%;object-fit:cover}.avatar-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.avatar-actions label{display:inline-block;border-radius:10px;padding:10px 14px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}.avatar-actions input{display:none}.profile-fixed{max-width:760px}.side-note{font-size:12px;color:#667085;margin-top:10px}@media(max-width:800px){.dash-layout{grid-template-columns:1fr}.dash-sidebar{position:static}.side-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.side-nav button{text-align:center}.side-nav .side-logout{grid-column:1/-1}.dash-user{padding-bottom:12px}}.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 5px 20px #0000000d}
+.price{font-size:27px;font-weight:800;margin:8px 0}.muted{color:#667085;font-size:14px}
+input,select{width:100%;padding:12px;border:1px solid #d8dee9;border-radius:9px;margin:7px 0 12px;font:inherit}
+.hidden{display:none!important}.stat{font-size:27px;font-weight:800}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tabs button{background:#e8eefc;color:#172033}.task{border:1px solid #e3e8f0;padding:14px;border-radius:12px;margin:10px 0}
+.badge{display:inline-block;padding:5px 9px;border-radius:20px;background:#e9f7ef;color:#137333;font-size:12px;font-weight:700}
+.badge.pending{background:#fff8db;color:#946200}.notice{background:#fff8db;padding:13px;border-radius:10px;border:1px solid #f1df8a}
+.divider{border:0;border-top:1px solid #e8ebf0;margin:18px 0}footer{background:#111827;color:#fff;padding:30px 5%;margin-top:30px}
+.status{margin-top:10px;font-weight:700}.error{color:#b42318}.success-text{color:#137333}.smalltext{font-size:12px;color:#667085}.policy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}.policy-card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 5px 20px #0000000d;margin-bottom:16px}.policy-card p,.policy-card li{line-height:1.6}.footer-links{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}.footer-links button{background:transparent;color:#fff;padding:0;text-decoration:underline}.support-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.support-actions a{display:inline-block;text-decoration:none;color:#fff;font-weight:700;padding:11px 16px;border-radius:10px;background:#2563eb}.support-actions a.wa-link{background:#16a34a}.support-actions a.call-link{background:#0f766e}.support-actions a.email-link{background:#7c3aed}
+.buy{width:100%;margin-top:8px}.btnrow{display:flex;gap:8px;flex-wrap:wrap}.btnrow>*{flex:1}.refgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}.refbox{background:#fff;border-radius:16px;padding:20px;box-shadow:0 5px 20px #0000000d}.refstatus{display:inline-block;padding:6px 10px;border-radius:999px;background:#fff8db;color:#946200;font-size:12px;font-weight:800}.level-list{line-height:1.8;margin:10px 0 0;padding-left:20px}.copyrow{display:flex;gap:8px;align-items:center}.copyrow input{margin:7px 0}.copyrow button{white-space:nowrap}
+
+.cf-pay-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:99999;display:flex;align-items:center;justify-content:center;padding:14px}
+.cf-pay-overlay.hidden{display:none!important}
+.cf-pay-box{position:relative;width:min(100%,560px);height:min(92vh,760px);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.cf-pay-close{position:absolute;right:10px;top:10px;width:42px;height:42px;padding:0;border-radius:50%;background:#111827;color:#fff;font-size:28px;line-height:42px;text-align:center;z-index:100000;box-shadow:0 3px 12px rgba(0,0,0,.25)}
+.cf-pay-close:hover{background:#000}
+#cf_checkout{width:100%;height:calc(100% - 58px);padding-top:4px;overflow:auto}
+.cf-pay-actions{height:58px;display:flex;justify-content:center;align-items:center;background:#fff;border-top:1px solid #e5e7eb;padding:8px}.cf-pay-actions button{background:#111827;padding:9px 20px}
+body.cf-payment-open{overflow:hidden}
+@media(max-width:600px){.cf-pay-overlay{padding:0}.cf-pay-box{width:100%;height:100%;max-height:none;border-radius:0}.cf-pay-close{right:8px;top:8px}}
+
+/* Registration welcome screen */
+.welcome-card{max-width:720px;margin:24px auto;text-align:center;padding:28px}
+.welcome-icon{font-size:54px;line-height:1;margin-bottom:10px}
+.welcome-id{font-size:26px;font-weight:800;letter-spacing:.5px;margin:10px 0}
+.welcome-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.welcome-actions button{min-width:190px}
+.welcome-note{margin-top:16px;padding:12px;border-radius:10px;background:rgba(0,0,0,.04);font-size:13px}
+
+/* App-like navigation + mobile payment layout */
+.section-toolbar{display:flex;justify-content:flex-start;margin:0 0 12px}.header-account{display:flex;align-items:center;gap:8px}.header-account-avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;background:#dbeafe;display:none;border:2px solid #fff}.header-account-avatar.show{display:block}.header-account-label{white-space:nowrap}@media(max-width:600px){header{padding:11px 16px}.logo{font-size:23px}.founder{font-size:10px}#headerAccountBtn{padding:9px 12px;border-radius:9px;font-size:12px}.header-account-avatar{width:28px;height:28px}}
+#headerAccountBtn{min-width:125px}.cf-pay-box{width:min(96vw,640px);height:min(94vh,820px);display:flex;flex-direction:column}.cf-pay-close{right:10px;top:10px}.cf-pay-box #cf_checkout{flex:1;height:auto;min-height:0;overflow:auto}.cf-pay-box #cf_checkout iframe{width:100%!important;max-width:100%!important;min-height:100%!important;border:0!important}.cf-pay-box #cf_checkout>div{max-width:100%!important}
+@media(max-width:600px){.section-toolbar{margin-bottom:10px}.cf-pay-overlay{padding:8px}.cf-pay-box{width:96vw;height:94vh;max-height:94vh;border-radius:16px}.cf-pay-close{right:8px;top:8px}.cf-pay-actions{height:56px;flex:0 0 56px}}
+.section-toolbar,.section-back,.cf-pay-back{display:none!important}
+
+.referral-list{display:grid;gap:10px;margin-top:12px}.referral-person{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e5e7eb;border-radius:12px;background:#fff}.referral-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#e8eefc;color:#183b8f;font-weight:800;flex:0 0 38px}.referral-person-main{flex:1;min-width:0}.referral-person-main b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.referral-person .badge{white-space:nowrap}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo">IDWP</div><div class="founder">Founder: Ibrahim</div></div>
+  <div class="header-account"><img id="headerAccountAvatar" class="header-account-avatar" alt="Profile"><button id="headerAccountBtn" type="button" onclick="headerAccountAction()"><span class="header-account-label">Register / Login</span></button></div>
+</header>
+
+<section class="hero"><div class="container">
+<h1>Digital Work & Earn with IDWP</h1>
+<p>Register with IDWP, view available work opportunities, submit completed work for verification and track approved earnings.</p>
+<div class="btnrow">
+<button type="button" onclick="show('auth')">Register / Login</button>
+<button type="button" class="wa" onclick="whatsapp()">WhatsApp Support</button>
+<button type="button" onclick="callSupport()">Call Support</button>
+<button type="button" onclick="emailSupport()">Email Support</button>
+</div>
+</div></section>
+
+<main class="container">
+<section id="home">
+<div class="card">
+<h2>🆓 Basic Work</h2>
+<p>Basic work opportunities can be displayed without requiring a package purchase. Package-specific work access is controlled after activation.</p>
+<button type="button" class="success" onclick="show('auth')">Start Work</button>
+<button type="button" onclick="show('auth');focusReferral()">Join with Referral</button>
+</div>
+
+<h2>Packages <span class="badge">LIVE</span></h2>
+<div class="grid" id="packages"></div>
+<div class="notice"><b>Important:</b> Earnings depend on completed and verified work. No income is guaranteed by registration, referral or package selection.</div>
+</section>
+
+<section id="auth" class="hidden">
+<div class="grid">
+<div class="card"><h2>Create IDWP Account</h2>
+<form id="regForm">
+<input id="name" placeholder="Full Name" required>
+<input id="mobile" placeholder="Mobile Number" inputmode="numeric" maxlength="10" required>
+<input id="waNumber" placeholder="WhatsApp Number" required>
+<input id="email" type="email" placeholder="Email" required>
+<input id="password" type="password" placeholder="Password (minimum 6 characters)" minlength="6" required>
+<input id="ref" placeholder="Referral ID (required)" required>
+<select id="skill"><option value="">Select Skill / Package</option></select>
+        <div class="smalltext">Package selection during registration does not charge you. Payment is made separately with Buy Now after login.</div>
+<button id="regBtn" class="btn" type="submit">Create Account &amp; Verify Email</button>
+</form><div id="regStatus" class="status"></div></div>
+
+<div class="card"><h2>Login</h2>
+<form id="loginForm">
+<input id="loginEmail" type="email" placeholder="Email" required>
+<input id="loginPassword" type="password" placeholder="Password" required>
+<button id="loginBtn" class="btn success" type="submit">Login</button>
+</form><div id="loginStatus" class="status"></div>
+<hr class="divider"><h3>Forgot Password?</h3>
+<input id="resetEmail" type="email" placeholder="Registered Email">
+<button type="button" onclick="resetPassword()">Send Reset Link</button>
+<div id="resetStatus" class="status"></div></div>
+</div></section>
+
+
+<section id="welcome" class="hidden">
+    <div class="card welcome-card">
+    <div class="welcome-icon">🎉</div>
+    <h2>Congratulations &amp; Welcome to IDWP!</h2>
+    <p>Your IDWP account has been created successfully.</p>
+    <div class="welcome-id" id="welcomeUserId">IDWP------</div>
+    <p><b>Registered Email:</b> <span id="welcomeEmail">-</span></p>
+    <p><b>Selected Package:</b> <span id="welcomePackage">-</span></p>
+    <div class="welcome-actions">
+      <button type="button" class="wa" id="welcomeWhatsappBtn">Send Welcome on WhatsApp</button>
+      <button type="button" class="success" id="welcomeLoginBtn">Go to Login</button>
+    </div>
+    <div class="welcome-note">
+      <b>Email verification required:</b> Verification link email par bhej diya gaya hai. Pehle email verify karo, phir Login karo.
+      WhatsApp button sirf WhatsApp message ko pre-fill karega; message send karne ke liye WhatsApp me <b>Send</b> dabana hoga.
+    </div>
+  </div>
+</section>
+
+<section id="policies" class="hidden"><div class="section-toolbar"><button type="button" class="section-back" onclick="goHome()">← Back</button></div><div class="policy-grid"><div class="policy-card" id="contact-us"><h2>Contact Us</h2><p>For account, package, payment or withdrawal support, contact IDWP support by WhatsApp, phone or email.</p><p><b>WhatsApp / Call:</b> +91 7320976061<br><b>Email:</b> ibrahim8426093@gmail.com</p><div class="support-actions"><a class="wa-link" href="https://wa.me/917320976061?text=Hello%20IDWP%20Support" target="_blank" rel="noopener">WhatsApp Support</a><a class="call-link" href="tel:+917320976061">Call Support</a><a class="email-link" href="mailto:ibrahim8426093@gmail.com?subject=IDWP%20Support">Email Support</a></div></div><div class="policy-card" id="terms"><h2>Terms &amp; Conditions</h2><p>By using IDWP, you agree to provide accurate registration information and to use the platform only for genuine work and permitted activities.</p><ul><li>Package activation is completed only after successful server-side payment verification.</li><li>Earnings depend on completed and verified work; registration, referrals or package selection do not guarantee income.</li><li>Users must not submit false, fraudulent or duplicated work.</li><li>IDWP may review, reject or hold transactions or work submissions that require verification.</li></ul></div><div class="policy-card" id="refunds"><h2>Refunds &amp; Cancellations</h2><p>Payment and package requests are subject to verification. If a payment is completed but the package is not activated, contact IDWP support with the payment/order details so the transaction can be checked.</p><ul><li>Cancellation or refund requests are reviewed according to transaction status and applicable payment rules.</li><li>Do not make a duplicate payment while an earlier payment is still processing.</li><li>For a refund or cancellation request, contact support on WhatsApp with your registered email, user ID and payment/order reference.</li></ul><button type="button" class="wa" onclick="whatsapp()">Request Support</button></div></div></section>
+
+<section id="dashboard" class="hidden">
+<div class="section-toolbar"><button type="button" class="section-back" onclick="goHome()">← Back to Home</button></div>
+<div class="dash-layout">
+  <aside class="dash-sidebar">
+    <div class="dash-user">
+      <div class="avatar" id="sideAvatar">U</div>
+      <div style="min-width:0"><div class="dash-user-name" id="sideUserName">IDWP User</div><div class="dash-user-id" id="sideUserId">User ID</div></div>
+    </div>
+    <nav class="side-nav" aria-label="Dashboard menu">
+      <button type="button" onclick="dashTab('overview')">🏠 Overview</button>
+      <button type="button" onclick="dashTab('package')">📦 Package</button>
+      <button type="button" onclick="dashTab('work')">💼 Work &amp; Earn</button>
+      <button type="button" onclick="dashTab('earnings')">💰 Earnings</button>
+      <button type="button" onclick="dashTab('referrals')">👥 Referral Center</button>
+      <button type="button" onclick="dashTab('wallet')">👛 Wallet</button>
+      <button type="button" onclick="dashTab('history')">🧾 History</button>
+      <button type="button" class="side-logout" onclick="logout()">🚪 Logout</button>
+    </nav>
+  </aside>
+  <div id="dashContent"></div>
+</div>
+</section>
+</main>
+<footer><strong>IDWP</strong> — Digital Work &amp; Earn<br>Founder: Ibrahim<br>WhatsApp / Call: +91 7320976061<br>Email: ibrahim8426093@gmail.com<div class="footer-links"><button type="button" onclick="showPolicy('contact-us')">Contact Us</button><button type="button" onclick="showPolicy('terms')">Terms &amp; Conditions</button><button type="button" onclick="showPolicy('refunds')">Refunds &amp; Cancellations</button><button type="button" onclick="emailSupport()">Email Support</button><button type="button" onclick="callSupport()">Call Support</button></div></footer>
+
+<div id="cfPayOverlay" class="cf-pay-overlay hidden" aria-hidden="true">
+  <div class="cf-pay-box">
+    <button id="cfPayClose" class="cf-pay-close" type="button" aria-label="Close payment">×</button>
+    <div id="cf_checkout"></div>
+    <div class="cf-pay-actions"><button id="cfPayCloseBottom" type="button">Close Payment</button></div>
+  </div>
+</div>
+
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail,onAuthStateChanged,signOut,sendEmailVerification,reauthenticateWithCredential,EmailAuthProvider,verifyBeforeUpdateEmail}
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import {getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,getDocs,serverTimestamp}
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyAQAWeYvB7chJXZJRBt7J46DcDeV684RyI",
+ authDomain:"idwp-41ab8.firebaseapp.com",projectId:"idwp-41ab8",
+ storageBucket:"idwp-41ab8.firebasestorage.app",messagingSenderId:"63543031077",
+ appId:"1:63543031077:web:825c547e3f3526408496cc",measurementId:"G-WTLL317BEK"
+};
+const API_BASE="https://idwp-nxwk.vercel.app", ADMIN_WA="917320976061";
+const packages=[
+{name:"Lead Generation",price:460,work:["Find eligible leads","Verify lead details","Submit lead sheet"]},
+{name:"Commission Skill",price:400,work:["Complete sales skill exercise","Prepare client pitch","Submit assignment"]},
+{name:"Data Entry",price:488,work:["Enter records","Clean duplicate entries","Submit spreadsheet"]},
+{name:"Video Editing",price:500,work:["Edit short clip","Add captions","Submit final video"]},
+{name:"Freelancing",price:350,work:["Complete client brief","Prepare proposal","Submit project"]},
+{name:"Content Creation",price:300,work:["Write content","Create draft","Submit final content"]}
+];
+let app,auth,db,firebaseReady=false;
+const ready=new Promise(resolve=>{window.__authReady=resolve});
+
+function money(n){return Number(n||0).toFixed(0)}
+function generateID(){return "IDWP"+Math.floor(100000+Math.random()*900000)}
+function requireFirebase(){if(!firebaseReady){alert("Firebase is not ready. Please refresh the page.");return false}return true}
+let currentView="home";
+let handlingPopState=false;
+function show(id,push=true){
+ document.getElementById("auth").classList.add("hidden");document.getElementById("welcome").classList.add("hidden");document.getElementById("dashboard").classList.add("hidden");document.getElementById("policies").classList.add("hidden");
+ currentView=id;
+ if(push&&!handlingPopState)history.pushState({id},"",location.href);
+ if(id==="auth"){document.getElementById("auth").classList.remove("hidden");document.getElementById("auth").scrollIntoView({behavior:"smooth"})}
+ if(id==="welcome"){document.getElementById("welcome").classList.remove("hidden");document.getElementById("welcome").scrollIntoView({behavior:"smooth"})}
+ if(id==="dashboard"){document.getElementById("dashboard").classList.remove("hidden");dashTab("overview");document.getElementById("dashboard").scrollIntoView({behavior:"smooth"})}
+ if(id==="policies"){document.getElementById("policies").classList.remove("hidden");document.getElementById("policies").scrollIntoView({behavior:"smooth"})}
+}
+function goHome(){show("home");window.scrollTo({top:0,behavior:"smooth"})}
+function headerAccountAction(){if(auth?.currentUser){show("dashboard");setTimeout(()=>dashTab("profile"),0)}else show("auth")}
+window.goHome=goHome;window.headerAccountAction=headerAccountAction;
+window.addEventListener("popstate",()=>{
+ handlingPopState=true;
+ history.pushState({id:currentView},"",location.href);
+ if(document.getElementById("cfPayOverlay")&&!document.getElementById("cfPayOverlay").classList.contains("hidden")){closeCashfreePayment();handlingPopState=false;return}
+ if(currentView!=="home")show("home",false);
+ handlingPopState=false;
+});
+if(!history.state||!history.state.id){history.replaceState({id:"home"},"",location.href);history.pushState({id:"home"},"",location.href)}
+function showPolicy(id){show("policies");const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:"smooth",block:"start"})}
+window.showPolicy=showPolicy;
+window.show=show;
+function whatsapp(){window.open("https://wa.me/"+ADMIN_WA+"?text="+encodeURIComponent("Hello IDWP Support"),"_blank")}
+function callSupport(){window.location.href="tel:+917320976061"}
+function emailSupport(){window.location.href="mailto:ibrahim8426093@gmail.com?subject="+encodeURIComponent("IDWP Support")}
+window.whatsapp=whatsapp;window.callSupport=callSupport;window.emailSupport=emailSupport;
+function focusReferral(){document.getElementById("ref").focus()} window.focusReferral=focusReferral;
+function applyReferralFromUrl(){const r=new URLSearchParams(location.search).get("ref");if(r){document.getElementById("ref").value=r.toUpperCase();show("auth")}}
+
+try{
+ app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);firebaseReady=true;
+ onAuthStateChanged(auth,async u=>{
+   window.__authReady(true);
+   const hb=document.getElementById("headerAccountBtn"),ha=document.getElementById("headerAccountAvatar");
+   if(hb){hb.innerHTML='<span class="header-account-label">'+(u?"👤 Profile":"Register / Login")+'</span>';hb.setAttribute("aria-label",u?"Open Profile":"Register or Login")}
+   if(ha){const s=u?await getDoc(doc(db,"users",u.uid)):null;const prof=s&&s.exists()?s.data():null;if(prof?.avatarData){ha.src=prof.avatarData;ha.classList.add("show")}else{ha.removeAttribute("src");ha.classList.remove("show")}}
+   if(u){const s=await getDoc(doc(db,"users",u.uid));if(s.exists()){window.currentUser=s.data();show("dashboard")}}
+ });
+}catch(e){console.error(e)}
+
+async function getUser(){if(auth?.currentUser)return auth.currentUser;await Promise.race([ready,new Promise(r=>setTimeout(r,5000))]);return auth?.currentUser||null}
+async function loadUser(){const u=await getUser();if(!u)return null;const s=await getDoc(doc(db,"users",u.uid));if(!s.exists())return null;window.currentUser=s.data();return s.data()}
+
+function renderPackages(){
+ document.getElementById("packages").innerHTML=packages.map(p=>`
+ <div class="card"><h3>${p.name}</h3><div class="price">₹${p.price}</div>
+ <p class="muted">Eligible ${p.name.toLowerCase()} work opportunities.</p>
+ <ul>${p.work.map(w=>`<li>${w}</li>`).join("")}</ul>
+ <button class="btn success buy" type="button" data-package="${p.name}">Buy Now ₹${p.price}</button></div>`).join("");
+ document.getElementById("skill").innerHTML='<option value="">Select Skill / Package</option>'+packages.map(p=>`<option>${p.name}</option>`).join("");
+ document.querySelectorAll("#packages .buy").forEach(b=>b.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();buyPackage(b.dataset.package,b)}));
+}
+renderPackages();
+applyReferralFromUrl();
+
+function showRegistrationWelcome(userID,email,packageName){
+ const idEl=document.getElementById("welcomeUserId"),emailEl=document.getElementById("welcomeEmail"),pkgEl=document.getElementById("welcomePackage");
+ if(idEl)idEl.textContent=userID||"-";
+ if(emailEl)emailEl.textContent=email||"-";
+ if(pkgEl)pkgEl.textContent=packageName||"-";
+ const btn=document.getElementById("welcomeWhatsappBtn");
+ if(btn){
+   btn.onclick=()=>{
+     const msg=`🎉 Congratulations!\n\nWelcome to IDWP — Digital Work & Earn.\nYour IDWP User ID: ${userID||"-"}\nYour selected package: ${packageName||"-"}\nYour registration has been successfully completed.\n\nPlease verify your registered email before login.\n\n— IDWP Support`;
+     window.open("https://wa.me/"+ADMIN_WA+"?text="+encodeURIComponent(msg),"_blank");
+   };
+ }
+ const loginBtn=document.getElementById("welcomeLoginBtn"); if(loginBtn) loginBtn.onclick=()=>show("auth");
+ show("welcome");
+}
+window.showRegistrationWelcome=showRegistrationWelcome;
+
+async function registerWithEmailVerification(){
+ if(!requireFirebase())return;
+ const st=document.getElementById("regStatus"),btn=document.getElementById("regBtn");
+ const name=document.getElementById("name").value.trim(),mobile=document.getElementById("mobile").value.trim();
+ const whatsappNumber=document.getElementById("waNumber").value.trim(),email=document.getElementById("email").value.trim();
+ const password=document.getElementById("password").value,referralId=document.getElementById("ref").value.trim().toUpperCase();
+ const selected=packages.find(p=>p.name===document.getElementById("skill").value);
+ if(!mobile||mobile.replace(/\D/g,"").length!==10){st.textContent="Please enter a valid 10-digit mobile number.";st.className="status error";return}
+ if(!referralId||!selected){st.textContent=!referralId?"Referral ID is required.":"Please select a skill / package.";st.className="status error";return}
+ if(password.length<6){st.textContent="Password must be at least 6 characters.";st.className="status error";return}
+ btn.disabled=true;st.textContent="Checking Referral ID...";
+ try{
+   let referralCheck="pending";
+   try{
+     const controller=new AbortController();
+     const timer=setTimeout(()=>controller.abort(),7000);
+     const rr=await fetch(API_BASE+"/api/validate-referral",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({referralId}),signal:controller.signal});
+     clearTimeout(timer);
+     const rd=await rr.json().catch(()=>({}));
+     if(rr.ok && rd.valid){
+       referralCheck="verified";
+     }else if(rr.ok && rd.valid===false){
+       throw new Error(rd.error||"Invalid Referral ID. Please enter an existing IDWP Referral ID.");
+     }else{
+       referralCheck="pending";
+     }
+   }catch(refErr){
+     if(refErr?.message?.startsWith("Invalid Referral ID")) throw refErr;
+     console.warn("Referral validation unavailable during registration; deferring verification.",refErr);
+     referralCheck="pending";
+   }
+
+   st.textContent=referralCheck==="verified"?"Referral ID verified. Creating account...":"Referral server is temporarily unavailable. Creating account; Referral ID will be checked before package activation/commission.";
+   
+   const result=await createUserWithEmailAndPassword(auth,email,password);
+   await sendEmailVerification(result.user);
+   const userID=generateID();
+   await setDoc(doc(db,"users",result.user.uid),{
+     uid:result.user.uid,userID,name,mobile,whatsapp:whatsappNumber,email:result.user.email,referral:referralId,
+     package:selected.name,packagePrice:selected.price,packageActive:false,earnings:0,workEarnings:0,
+     referralEarnings:0,pending:0,directReferralCount:0,level:0,referralCommissionRate:.20,
+     freePackageEligible:false,freePackageClaimed:false,requireEmailVerification:true,emailVerified:false,referralVerification:referralCheck,createdAt:serverTimestamp()
+   });
+   await signOut(auth);
+   st.textContent="Verification email sent to "+email+".";
+   st.className="status success-text";
+   showRegistrationWelcome(userID,email,selected.name);
+ }catch(err){
+   console.error(err);
+   st.textContent=err.code==="auth/email-already-in-use"?"This email is already registered. Please use Login or Forgot Password.":(err.message||"Registration failed.");
+   st.className="status error";
+ }finally{btn.disabled=false}
+}
+
+document.getElementById("regForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ await registerWithEmailVerification();
+});
+
+document.getElementById("loginForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!requireFirebase())return;const st=document.getElementById("loginStatus"),btn=document.getElementById("loginBtn");
+ btn.disabled=true;st.textContent="Logging in...";
+ try{
+   const credential=await signInWithEmailAndPassword(auth,document.getElementById("loginEmail").value.trim(),document.getElementById("loginPassword").value);
+   const snap=await getDoc(doc(db,"users",credential.user.uid));
+   const profile=snap.exists()?snap.data():{};
+   if(profile.requireEmailVerification===true && !credential.user.emailVerified){
+     await sendEmailVerification(credential.user).catch(()=>{});
+     await signOut(auth);
+     throw new Error("Please verify your registered email first. A new verification email has been sent.");
+   }
+   st.textContent="Login successful.";st.className="status success-text";show("dashboard");await dashTab("overview")
+ }catch(err){st.textContent=err.message||"Login failed.";st.className="status error"}finally{btn.disabled=false}
+});
+async function resetPassword(){if(!requireFirebase())return;const email=document.getElementById("resetEmail").value.trim(),st=document.getElementById("resetStatus");if(!email){st.textContent="Enter your registered email.";st.className="status error";return}try{await sendPasswordResetEmail(auth,email);st.textContent="Reset link sent. Check your email.";st.className="status success-text"}catch(e){st.textContent=e.message||"Unable to send reset link.";st.className="status error"}}
+window.resetPassword=resetPassword;
+
+let buying=false;
+let activeCheckout=null;
+function openCashfreePayment(){
+ const overlay=document.getElementById("cfPayOverlay");
+ if(!overlay)return;
+ overlay.classList.remove("hidden");
+ overlay.setAttribute("aria-hidden","false");
+ document.body.classList.add("cf-payment-open");
+}
+function closeCashfreePayment(){
+ if(activeCheckout)activeCheckout.closed=true;
+ const overlay=document.getElementById("cfPayOverlay");
+ const box=document.getElementById("cf_checkout");
+ if(box)box.innerHTML="";
+ if(overlay){overlay.classList.add("hidden");overlay.setAttribute("aria-hidden","true");}
+ document.body.classList.remove("cf-payment-open");
+ buying=false;
+}
+document.getElementById("cfPayBack")?.addEventListener("click",closeCashfreePayment);
+document.getElementById("cfPayClose")?.addEventListener("click",closeCashfreePayment);
+document.getElementById("cfPayCloseBottom")?.addEventListener("click",closeCashfreePayment);
+window.addEventListener("popstate",()=>{if(!document.getElementById("cfPayOverlay")?.classList.contains("hidden"))closeCashfreePayment()});
+async function buyPackage(name,clicked){
+ if(buying||!requireFirebase())return;const p=packages.find(x=>x.name===name);if(!p)return;
+ const u=await getUser();if(!u){show("auth");document.getElementById("skill").value=name;alert("Please login first.");return}
+ if(typeof window.Cashfree!=="function"){alert("Cashfree Checkout did not load. Refresh once and try again.");return}
+ buying=true;const btn=clicked||null;const oldText=btn?btn.textContent:"";if(btn){btn.disabled=true;btn.textContent="Processing…";}
+ const checkoutState={closed:false};activeCheckout=checkoutState;
+ try{
+   const token=await u.getIdToken(true);
+   const r=await fetch(API_BASE+"/api/create-order",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({packageName:name})});
+   const data=await r.json().catch(()=>({}));if(!r.ok||!data.success)throw new Error(data.error||"Unable to create Cashfree order.");
+   if(checkoutState.closed)return;
+   const cashfree=window.Cashfree({mode:data.mode||"production"});
+   const box=document.getElementById("cf_checkout");
+   if(!box)throw new Error("Payment window could not be opened.");
+   box.innerHTML="";
+   openCashfreePayment();
+   const checkoutResult=await cashfree.checkout({paymentSessionId:data.paymentSessionId,redirectTarget:box});
+   console.log("Cashfree checkout result:",checkoutResult);
+   if(checkoutState.closed)return;
+   const vr=await fetch(API_BASE+"/api/verify-payment",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+await u.getIdToken(true)},body:JSON.stringify({orderId:data.orderId})});
+   const vd=await vr.json().catch(()=>({}));
+   if(!vr.ok||!vd.success){if(vd.status==="pending")alert("Payment is still processing. Check Package status again in a moment.");else throw new Error(vd.error||"Payment verification failed.");}
+   else {alert("Payment successful. Package is now ACTIVE.");await loadUser();await dashTab("package")}
+ }catch(err){
+   console.error(err);
+   if(!checkoutState.closed)alert(err.message||"Payment could not be completed.");
+ }finally{
+   if(activeCheckout===checkoutState)activeCheckout=null;
+   const overlay=document.getElementById("cfPayOverlay");
+   const box=document.getElementById("cf_checkout");
+   if(overlay){overlay.classList.add("hidden");overlay.setAttribute("aria-hidden","true");}
+   if(box)box.innerHTML="";
+   document.body.classList.remove("cf-payment-open");
+   buying=false;if(btn){btn.disabled=false;btn.textContent=oldText}
+ }
+}
+window.buyPackage=buyPackage;
+
+function directRateForLevel(level){
+  level=Number(level||0);
+  if(level>=51)return .50;
+  if(level>=31)return .48;
+  if(level>=26)return .45;
+  if(level>=16)return .43;
+  if(level>=11)return .40;
+  if(level>=9)return .35;
+  if(level>=5)return .30;
+  return .20;
+}
+function copyReferralLink(){
+  const el=document.getElementById("referralLink");
+  if(!el)return;
+  navigator.clipboard?.writeText(el.value).then(()=>alert("Referral link copied."),()=>{el.select();document.execCommand("copy");alert("Referral link copied.")});
+}
+window.copyReferralLink=copyReferralLink;
+
+
+function escapeHtml(value){return String(value??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]))}
+window.escapeHtml=escapeHtml;
+
+function initials(name){const t=String(name||"U").trim();return t?t.split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase():"U";}
+function avatarMarkup(user,large=false){const cls=large?"profile-avatar-large":"avatar";return user?.avatarData?`<div class="${cls}"><img src="${escapeHtml(user.avatarData)}" alt="Profile photo"></div>`:`<div class="${cls}">${escapeHtml(initials(user?.name))}</div>`;}
+function refreshDashboardUser(user){const a=document.getElementById("sideAvatar"),n=document.getElementById("sideUserName"),id=document.getElementById("sideUserId");if(a)a.outerHTML=avatarMarkup(user,false).replace('class="avatar"', 'class="avatar" id="sideAvatar"');if(n)n.textContent=user?.name||"IDWP User";if(id)id.textContent=user?.userID||"User ID";}
+async function changeProfilePhoto(file){
+ const st=document.getElementById("profileStatus");if(!file)return;
+ if(!file.type.startsWith("image/")){if(st){st.textContent="Please select an image file.";st.className="status error";}return}
+ try{
+  const img=new Image(), reader=new FileReader();
+  reader.onload=()=>{img.onload=async()=>{const max=320,scale=Math.min(1,max/Math.max(img.width,img.height)),canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const ctx=canvas.getContext("2d");ctx.drawImage(img,0,0,canvas.width,canvas.height);const data=canvas.toDataURL("image/jpeg",0.78);const u=await getUser();if(!u)return;await updateDoc(doc(db,"users",u.uid),{avatarData:data,lastProfileUpdate:serverTimestamp()});if(st){st.textContent="Profile photo updated successfully.";st.className="status success-text";}const user=await loadUser();refreshDashboardUser(user);await dashTab("profile");};img.src=reader.result;};reader.readAsDataURL(file);
+ }catch(e){console.error(e);if(st){st.textContent="Unable to update profile photo.";st.className="status error";}}
+}
+async function removeProfilePhoto(){const u=await getUser();if(!u)return;await updateDoc(doc(db,"users",u.uid),{avatarData:"",lastProfileUpdate:serverTimestamp()});const user=await loadUser();refreshDashboardUser(user);await dashTab("profile");}
+
+async function saveProfileChanges(){
+ const u=await getUser();if(!u){show("auth");return}
+ const st=document.getElementById("profileStatus"),password=document.getElementById("profileCurrentPassword")?.value||"";
+ const name=document.getElementById("profileName")?.value.trim()||"",mobile=(document.getElementById("profileMobile")?.value||"").replace(/\D/g,"");
+ const whatsappNumber=(document.getElementById("profileWhatsApp")?.value||"").replace(/\D/g,"");
+ const newEmail=document.getElementById("profileEmail")?.value.trim().toLowerCase()||"";
+ if(!password){st.textContent="Current password is required to save changes.";st.className="status error";return}
+ if(!name){st.textContent="Name is required.";st.className="status error";return}
+ if(mobile.length!==10){st.textContent="Enter a valid 10-digit mobile number.";st.className="status error";return}
+ if(whatsappNumber.length<10||whatsappNumber.length>15){st.textContent="Enter a valid WhatsApp number.";st.className="status error";return}
+ if(!newEmail||!newEmail.includes("@")){st.textContent="Enter a valid email address.";st.className="status error";return}
+ try{
+   st.textContent="Checking account security...";st.className="status";
+   await reauthenticateWithCredential(u,EmailAuthProvider.credential(u.email,password));
+   const oldEmail=(u.email||"").toLowerCase();
+   await updateDoc(doc(db,"users",u.uid),{name,mobile,whatsapp:whatsappNumber,lastProfileUpdate:serverTimestamp()});
+   if(newEmail!==oldEmail){
+     await verifyBeforeUpdateEmail(u,newEmail);
+     st.textContent="Profile saved. A verification link has been sent to the new email. Your login email will change after you open that link.";
+   }else{
+     st.textContent="Profile updated successfully.";
+   }
+   st.className="status success-text";
+   document.getElementById("profileCurrentPassword").value="";
+   const refreshed=await loadUser();
+   refreshDashboardUser(refreshed);
+ }catch(e){
+   console.error(e);
+   let msg=e.message||"Unable to update profile.";
+   if(e.code==="auth/wrong-password"||e.code==="auth/invalid-credential")msg="Current password is incorrect.";
+   if(e.code==="auth/email-already-in-use")msg="That email is already linked to another account.";
+   if(e.code==="auth/requires-recent-login")msg="Please log in again and then update your profile.";
+   st.textContent=msg;st.className="status error";
+ }
+}
+window.saveProfileChanges=saveProfileChanges;
+
+async function dashTab(tab){
+ if(!requireFirebase())return;const u=await getUser();if(!u){show("auth");return}const user=await loadUser();if(!user)return;refreshDashboardUser(user);const d=document.getElementById("dashContent");
+ if(tab==="overview")d.innerHTML=`<div class="grid"><div class="card"><div class="muted">User ID</div><div class="stat">${user.userID||"-"}</div></div><div class="card"><div class="muted">Work Earnings</div><div class="stat">₹${money(user.workEarnings)}</div></div><div class="card"><div class="muted">Referral Earnings</div><div class="stat">₹${money(user.referralEarnings)}</div></div><div class="card"><div class="muted">Total Earnings</div><div class="stat">₹${money(user.earnings)}</div></div></div><div class="card" style="margin-top:16px"><h2>Welcome, ${user.name||"User"}</h2><p>Package: <b>${user.package||"-"}</b></p><p>Status: <b>${user.packageActive?"Active":"Not Active"}</b></p><p>Referral ID: <b>${user.userID||"-"}</b></p></div>`;
+ if(tab==="profile")d.innerHTML=`<div class="card profile-fixed"><h2>👤 Profile &amp; Account</h2>
+ <div class="profile-avatar-wrap">${avatarMarkup(user,true)}
+  <div><b>${escapeHtml(user.name||"IDWP User")}</b><div class="smalltext">User ID: ${escapeHtml(user.userID||"-")}</div></div>
+  <div class="avatar-actions" style="margin-top:10px"><label for="profilePhotoInput">📷 Change DP</label><input id="profilePhotoInput" type="file" accept="image/*"><button type="button" onclick="removeProfilePhoto()">Remove DP</button></div>
+  <div class="side-note">Profile photo is resized before saving for faster loading.</div>
+ </div>
+ <div class="notice"><b>Account safety:</b> Name, mobile and WhatsApp can be updated after re-authentication. Email changes require verification at the new email address. User ID and Referral ID cannot be changed.</div>
+ <div class="grid" style="margin-top:14px"><div><label><b>Full Name</b></label><input id="profileName" value="${escapeHtml(user.name||"")}" autocomplete="name"></div><div><label><b>Mobile Number</b></label><input id="profileMobile" value="${escapeHtml(user.mobile||"")}" inputmode="numeric" maxlength="10"></div><div><label><b>WhatsApp Number</b></label><input id="profileWhatsApp" value="${escapeHtml(user.whatsapp||"")}" inputmode="numeric" maxlength="15"></div><div><label><b>New Email</b></label><input id="profileEmail" type="email" value="${escapeHtml(user.email||u.email||"")}" autocomplete="email"></div></div>
+ <div class="grid"><div><b>User ID</b><p>${escapeHtml(user.userID||"-")}</p></div><div><b>Referral ID</b><p>${escapeHtml(user.referral||"Direct")}</p></div></div>
+ <hr class="divider"><h3>Confirm Changes</h3><p class="smalltext">For security, enter your current account password before saving profile changes.</p><input id="profileCurrentPassword" type="password" placeholder="Current Password" autocomplete="current-password"><button class="btn success" type="button" onclick="saveProfileChanges()">Save Profile Changes</button><div id="profileStatus" class="status"></div></div>`;
+ document.getElementById("profilePhotoInput")?.addEventListener("change",e=>changeProfilePhoto(e.target.files?.[0]));
+ if(tab==="package"){const p=packages.find(x=>x.name===user.package);d.innerHTML=`<div class="card"><h2>📦 My Package</h2><p>Package: <b>${user.package||"-"}</b></p><p>Price: <b>₹${p?p.price:0}</b></p><p>Status: <span class="badge ${user.packageActive?"":"pending"}">${user.packageActive?"ACTIVE":"NOT ACTIVE"}</span></p>${p?`<ul>${p.work.map(w=>`<li>${w}</li>`).join("")}</ul><button class="btn success buy" type="button" data-package="${p.name}">Buy Now ₹${p.price}</button>`:""}<hr class="divider"><div class="notice">Package activation happens only after server-side Cashfree verification.</div></div>`;const dbuy=d.querySelector(".buy");if(dbuy)dbuy.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();buyPackage(dbuy.dataset.package,dbuy)})}
+ if(tab==="work")d.innerHTML=`<div class="card"><h2>Work & Earn</h2><div class="notice">Submit genuine completed work. Earnings are subject to verification.</div><div class="task"><b>Basic Data Checking</b><p>Check and verify assigned data.</p><button onclick="submitWork('Basic Data Checking')">Submit Work</button></div><div class="task"><b>Basic Content Task</b><p>Create assigned content.</p><button onclick="submitWork('Basic Content Task')">Submit Work</button></div><div class="task"><b>Lead Verification</b><p>Verify assigned leads.</p><button onclick="submitWork('Lead Verification')">Submit Work</button></div></div>`;
+ if(tab==="earnings")d.innerHTML=`<div class="grid"><div class="card"><div class="muted">Work Earnings</div><div class="stat">₹${money(user.workEarnings)}</div></div><div class="card"><div class="muted">Referral Earnings</div><div class="stat">₹${money(user.referralEarnings)}</div></div><div class="card"><div class="muted">Total Earnings</div><div class="stat">₹${money(user.earnings)}</div></div></div>`;
+ if(tab==="referrals"){
+  const count=Number(user.directReferralCount||0);
+  const level=Number(user.level||0);
+  const directRate=Number(user.referralCommissionRate||directRateForLevel(level));
+  const eligible=count>=8;
+  const referralLink=location.origin+location.pathname+"?ref="+encodeURIComponent(user.userID||"");
+  let referralRows='<div class="smalltext">Loading direct referrals...</div>';
+  try{
+    const token=await u.getIdToken(true);
+    let rr=await fetch(API_BASE+"/api/my-referrals",{method:"GET",cache:"no-store",headers:{"Authorization":"Bearer "+token}});
+    let rd=await rr.json().catch(()=>({}));
+    if(!rr.ok && rr.status===405){
+      rr=await fetch(API_BASE+"/api/my-referrals",{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:"{}"});
+      rd=await rr.json().catch(()=>({}));
+    }
+    if(rr.ok&&rd.success){
+      const list=Array.isArray(rd.referrals)?rd.referrals:[];
+      referralRows=list.length?list.map((r,i)=>`<div class="referral-person"><div class="referral-avatar">${escapeHtml((r.name||"U").trim().charAt(0).toUpperCase())}</div><div class="referral-person-main"><b>${escapeHtml(r.name||"IDWP User")}</b><div class="smalltext">${escapeHtml(r.userID||"-")} • ${escapeHtml(r.package||"-")}</div></div><span class="badge ${r.packageActive?"":"pending"}">${r.packageActive?"PAID / ACTIVE":"REGISTERED"}</span></div>`).join(''):'<div class="notice">No direct referrals yet. When someone joins using your Referral ID, their account will appear here.</div>';
+    }else{referralRows='<div class="notice">'+escapeHtml(rd.error||('Referral server error ('+rr.status+'). Please deploy api/my-referrals.js and refresh.'))+'</div>'}
+  }catch(e){console.warn('my-referrals load:',e);referralRows='<div class="notice">Unable to connect to Referral server. Please check Vercel deployment of api/my-referrals.js.</div>'}
+  d.innerHTML=`
+  <div class="refgrid">
+    <div class="refbox">
+      <h2>👥 Referral Center</h2>
+      <p>Your Referral ID: <b>${user.userID||"-"}</b></p>
+      <p>Verified direct paid referrals: <b>${count}/60</b></p>
+      <p>Current Level: <b>${level}</b></p>
+      <p>Direct commission: <b>${Math.round(directRate*100)}%</b></p>
+    </div>
+    <div class="refbox">
+      <h2>🎁 8 Direct Referral Reward</h2>
+      <p>Status: <span class="refstatus">${eligible?"ELIGIBLE":"KEEP REFERRING"}</span></p>
+      <p>Complete 8 verified direct paid referrals to become eligible for one free package.</p>
+      ${eligible&&!user.freePackageClaimed?'<div class="notice">You are eligible for 1 free package.</div><button class="btn success" type="button" onclick="claimFreePackage()">Claim Free Package</button>':''}
+      ${user.freePackageClaimed?'<div class="badge">FREE PACKAGE REWARD CLAIMED</div>':''}
+    </div>
+  </div>
+  <div class="refbox" style="margin-top:16px">
+    <h2>👥 My Direct Referrals</h2>
+    <p class="smalltext">People who joined IDWP using your Referral ID.</p>
+    <div class="referral-list">${referralRows}</div>
+  </div>
+  <div class="refbox" style="margin-top:16px">
+    <h2>Referral Commission Levels</h2>
+    <ul class="level-list">
+      <li>Level 1–4 → 20%</li>
+      <li>Level 5–8 → 30%</li>
+      <li>Level 9–10 → 35%</li>
+      <li>Level 11–15 → 40%</li>
+      <li>Level 16–25 → 43%</li>
+      <li>Level 26–30 → 45%</li>
+      <li>Level 31–50 → 48%</li>
+      <li>Level 51–60 → 50%</li>
+    </ul>
+    <div class="notice">Level increases only from verified direct paid package buyers. Level 60 is the maximum.</div>
+  </div>
+  <div class="refbox" style="margin-top:16px">
+    <h2>Referral Link</h2>
+    <div class="copyrow"><input id="referralLink" readonly value="${referralLink}"><button type="button" onclick="copyReferralLink()">Copy</button></div>
+    <p>Generation 2: <b>15%</b> • Generation 3: <b>5%</b> • Generation 4: <b>3%</b> • Generation 5: <b>2%</b></p>
+    <div class="notice">Only verified paid package purchases are counted for referral commissions.</div>
+  </div>`;
+}
+ if(tab==="wallet"){const total=Number(user.earnings||user.totalEarnings||0),withdrawn=Number(user.withdrawn||0),pending=Number(user.pendingWithdrawal||0),available=Math.max(0,total-withdrawn-pending);d.innerHTML=`<div class="card"><h2>💰 Wallet & Withdrawal</h2><div class="grid"><div><div class="muted">Available to Withdraw</div><div class="stat">₹${money(available)}</div></div><div><div class="muted">Referral Earnings</div><div class="stat">₹${money(user.referralEarnings)}</div></div><div><div class="muted">Pending Withdrawal</div><div class="stat">₹${money(pending)}</div></div></div><hr class="divider"><h3>Withdraw to UPI</h3><input id="upi" placeholder="UPI ID (example@upi)"><input id="withdrawAmount" type="number" min="100" placeholder="Amount (minimum ₹100)"><button class="btn success" onclick="requestWithdrawal()">Withdraw Now</button><div id="withdrawStatus" class="status"></div><p class="smalltext">Withdrawal request is reserved first. Actual UPI/bank transfer is completed only after Cashfree Payouts processing.</p></div>`;}
+ if(tab==="history"){let rs=await getDocs(collection(db,"users",u.uid,"withdrawals"));let h="";rs.forEach(x=>{let v=x.data();h+=`<div class="task">₹${money(v.amount)} — ${v.upiId||v.upi||"-"} — ${v.status||"Pending"}</div>`});d.innerHTML=`<div class="card"><h2>Withdrawal History</h2>${h||'<p class="muted">No withdrawal history.</p>'}</div>`}
+}
+window.dashTab=dashTab;
+
+async function submitWork(title){const u=await getUser();if(!u){show("auth");return}const s=await getDoc(doc(db,"users",u.uid));if(!s.exists())return;if(!s.data().packageActive){alert("Please purchase and activate a package first.");return}await addDoc(collection(db,"users",u.uid,"tasks"),{title,status:"Pending",createdAt:serverTimestamp()});alert("Work submitted for verification.");dashTab("work")}
+window.submitWork=submitWork;
+
+async function requestWithdrawal(){
+ const u=await getUser();if(!u){show("auth");return}
+ const upi=document.getElementById("upi")?.value.trim().toLowerCase(),amount=Number(document.getElementById("withdrawAmount")?.value),st=document.getElementById("withdrawStatus");
+ if(!upi||!/^[a-zA-Z0-9._-]{2,}@[a-zA-Z]{2,}$/.test(upi))return alert("Enter a valid UPI ID.");
+ if(!Number.isInteger(amount)||amount<100)return alert("Minimum withdrawal amount is ₹100.");
+ try{
+  st.textContent="Submitting request...";
+  const r=await fetch(API_BASE+"/api/request-withdrawal",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+await u.getIdToken(true)},body:JSON.stringify({upi,amount})});
+  const data=await r.json().catch(()=>({}));if(!r.ok||!data.success)throw new Error(data.error||"Withdrawal failed.");
+  st.textContent="Withdrawal request submitted. Status: "+(data.status||"pending");st.className="status success-text";await dashTab("history");
+ }catch(e){st.textContent=e.message||"Withdrawal failed.";st.className="status error"}
+}
+window.requestWithdrawal=requestWithdrawal;
+
+async function claimFreePackage(){
+ const u=await getUser();
+ if(!u){show("auth");return}
+ if(!confirm("Claim your 1 free package now?"))return;
+ try{
+  const r=await fetch(API_BASE+"/api/claim-free-package",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+await u.getIdToken(true)}});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok||!data.success)throw new Error(data.error||"Unable to claim free package.");
+  alert(data.message||"Free package activated.");
+  await loadUser();
+  await dashTab("referrals");
+ }catch(e){alert(e.message||"Unable to claim free package.")}
+}
+window.claimFreePackage=claimFreePackage;
+
+async function logout(){if(firebaseReady)await signOut(auth);window.currentUser=null;const hb=document.getElementById("headerAccountBtn"),ha=document.getElementById("headerAccountAvatar");if(hb){hb.innerHTML='<span class="header-account-label">Register / Login</span>';hb.setAttribute("aria-label","Register or Login")}if(ha){ha.removeAttribute("src");ha.classList.remove("show")}goHome()}window.logout=logout;
+</script>
+</body>
+</html>
