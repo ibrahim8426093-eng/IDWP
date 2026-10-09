@@ -1,1 +1,56 @@
-const 
+
+const { initFirebase, methodGuard } = require("../firebase-helper");
+
+module.exports = async function handler(req, res) {
+  if (methodGuard(req, res)) return;
+
+  try {
+    const referralId = String(
+      req.body?.referralId || req.body?.referralCode || ""
+    ).trim();
+
+    if (!referralId) {
+      return res.status(400).json({
+        success: false,
+        valid: false,
+        message: "Referral ID is required."
+      });
+    }
+
+    const admin = initFirebase();
+    const db = admin.firestore();
+
+    // Check whether the referral ID belongs to a registered user.
+    const collectionsToCheck = ["users"];
+
+    for (const collectionName of collectionsToCheck) {
+      const snapshot = await db
+        .collection(collectionName)
+        .where("referralId", "==", referralId)
+        .limit(1)
+        .get();
+
+      if (!snapshot.empty) {
+        return res.status(200).json({
+          success: true,
+          valid: true,
+          message: "Referral ID is valid."
+        });
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      valid: false,
+      message: "Referral ID was not found."
+    });
+  } catch (error) {
+    console.error("validate-referral error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      valid: false,
+      message: "Server error while validating referral ID."
+    });
+  }
+};
