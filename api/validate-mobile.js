@@ -1,48 +1,30 @@
-import admin from "firebase-admin";
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
-    })
-  });
-}
-
-const db = admin.firestore();
+m
+const { initFirebase, methodGuard } = require("../firebase-helper");
 
 function normalizeMobile(value) {
-  let mobile = String(value || "").replace(/\D/g, "");
-
-  // +91XXXXXXXXXX / 91XXXXXXXXXX → XXXXXXXXXX
-  if (mobile.startsWith("91") && mobile.length === 12) {
-    mobile = mobile.slice(2);
-  }
-
-  return mobile;
+  return String(value || "").replace(/\D/g, "");
 }
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      available: false,
-      error: "Method not allowed"
-    });
-  }
+function isValidIndianMobile(mobile) {
+  return /^[6-9]\d{9}$/.test(mobile);
+}
+
+module.exports = async function handler(req, res) {
+  if (methodGuard(req, res)) return;
 
   try {
     const mobile = normalizeMobile(req.body?.mobile);
 
-    // Indian 10-digit mobile validation
-    if (!/^[6-9][0-9]{9}$/.test(mobile)) {
+    if (!isValidIndianMobile(mobile)) {
       return res.status(400).json({
-        available: false,
-        error: "Please enter a valid 10-digit mobile number."
+        success: false,
+        message: "Please enter a valid 10-digit Indian mobile number."
       });
     }
 
-    // Check whether this mobile is already registered
+    const admin = initFirebase();
+    const db = admin.firestore();
+
     const snapshot = await db
       .collection("users")
       .where("mobile", "==", mobile)
@@ -51,23 +33,23 @@ export default async function handler(req, res) {
 
     if (!snapshot.empty) {
       return res.status(409).json({
+        success: false,
         available: false,
-        error:
-          "This mobile number is already registered. Only one ID is allowed per mobile number."
+        message: "This mobile number is already registered."
       });
     }
 
     return res.status(200).json({
+      success: true,
       available: true,
-      mobile: mobile
+      message: "Mobile number is available."
     });
-
   } catch (error) {
-    console.error("Mobile validation error:", error);
+    console.error("validate-mobile error:", error.message);
 
     return res.status(500).json({
-      available: false,
-      error: "Unable to verify mobile number. Please try again."
+      success: false,
+      message: "Server error while validating mobile number."
     });
   }
-}
+};
