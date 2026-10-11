@@ -17,7 +17,7 @@ function initFirebase() {
       !serviceAccount.private_key
     ) {
       throw new Error(
-        "Firebase service account JSON is missing required fields."
+        "Firebase service account configuration is incomplete."
       );
     }
 
@@ -34,7 +34,7 @@ function initFirebase() {
 
   if (!projectId || !clientEmail || !privateKey) {
     throw new Error(
-      "Firebase credentials missing. Check Vercel environment variables."
+      "Firebase environment variables are missing."
     );
   }
 
@@ -62,7 +62,10 @@ function methodGuard(req, res) {
   }
 
   res.setHeader("Vary", "Origin");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "POST, OPTIONS"
+  );
   res.setHeader(
     "Access-Control-Allow-Headers",
     "Content-Type, Authorization"
@@ -74,7 +77,10 @@ function methodGuard(req, res) {
   }
 
   if (req.method !== "POST") {
-    res.status(405).json({ error: "Method not allowed" });
+    res.status(405).json({
+      success: false,
+      message: "Method not allowed"
+    });
     return true;
   }
 
