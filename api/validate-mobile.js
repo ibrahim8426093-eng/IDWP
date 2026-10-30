@@ -1,4 +1,3 @@
-m
 const { initFirebase, methodGuard } = require("../firebase-helper");
 
 function normalizeMobile(value) {
@@ -27,13 +26,14 @@ module.exports = async function handler(req, res) {
 
     const snapshot = await db
       .collection("users")
-      .where("mobile", "==", mobile)
+      .where("mobileNormalized", "==", mobile)
       .limit(1)
       .get();
 
     if (!snapshot.empty) {
       return res.status(409).json({
         success: false,
+        exists: true,
         available: false,
         message: "This mobile number is already registered."
       });
@@ -41,6 +41,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
+      exists: false,
       available: true,
       message: "Mobile number is available."
     });
