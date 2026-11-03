@@ -1,4 +1,3 @@
-
 const { initFirebase, methodGuard } = require("../firebase-helper");
 
 const PACKAGES = {
@@ -15,7 +14,17 @@ function generateUserID() {
 }
 
 function normalizeMobile(value) {
-  return String(value || "").replace(/\D/g, "");
+  let n = String(value || "").replace(/\D/g, "");
+
+  if (n.startsWith("0091") && n.length === 14) {
+    n = n.slice(4);
+  } else if (n.startsWith("91") && n.length === 12) {
+    n = n.slice(2);
+  } else if (n.startsWith("0") && n.length === 11) {
+    n = n.slice(1);
+  }
+
+  return n;
 }
 
 module.exports = async function handler(req, res) {
@@ -27,18 +36,20 @@ module.exports = async function handler(req, res) {
     const name = String(req.body?.name || "").trim();
     const email = String(req.body?.email || "").trim().toLowerCase();
     const mobile = String(req.body?.mobile || "").trim();
+
     const whatsapp = String(
       req.body?.whatsappNumber || req.body?.whatsapp || mobile
     ).trim();
+
     const referral = String(
       req.body?.referralId || req.body?.referral || ""
     ).trim().toUpperCase();
-    const packageName = String(
-      req.body?.package || ""
-    ).trim();
+
+    const packageName = String(req.body?.package || "").trim();
     const password = String(req.body?.password || "");
 
     const mobileNormalized = normalizeMobile(mobile);
+    const whatsappNormalized = normalizeMobile(whatsapp);
 
     if (!name || name.length > 100) {
       return res.status(400).json({
@@ -54,11 +65,17 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    if (mobileNormalized.length < 10 ||
-        mobileNormalized.length > 15) {
+    if (!/^[6-9]\d{9}$/.test(mobileNormalized)) {
       return res.status(400).json({
         success: false,
         error: "Please enter a valid mobile number."
+      });
+    }
+
+    if (!/^[6-9]\d{9}$/.test(whatsappNormalized)) {
+      return res.status(400).json({
+        success: false,
+        error: "Please enter a valid 10-digit WhatsApp number."
       });
     }
 
@@ -87,7 +104,7 @@ module.exports = async function handler(req, res) {
     const auth = admin.auth();
     const db = admin.firestore();
 
-    // Reject duplicate email.
+    // Check duplicate email
     try {
       await auth.getUserByEmail(email);
 
@@ -95,11 +112,14 @@ module.exports = async function handler(req, res) {
         success: false,
         error: "This email is already registered with IDWP."
       });
+
     } catch (error) {
-      if (error.code !== "auth/user-not-found") throw error;
+      if (error.code !== "auth/user-not-found") {
+        throw error;
+      }
     }
 
-    // Reject duplicate mobile number.
+    // Check duplicate mobile
     const mobileSnap = await db
       .collection("users")
       .where("mobileNormalized", "==", mobileNormalized)
@@ -113,7 +133,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // Validate the referral against an existing user.
+    // Validate referral ID
     const referralSnap = await db
       .collection("users")
       .where("userID", "==", referral)
@@ -127,7 +147,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // Generate a user ID that is not already in use.
+    // Generate unique user ID
     let userID = null;
 
     for (let i = 0; i < 30; i++) {
@@ -152,8 +172,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // Firebase Authentication securely stores the password hash.
-    // No email confirmation link is required by this endpoint.
+    // Create Firebase Authentication account
     const authUser = await auth.createUser({
       email,
       password,
@@ -168,33 +187,46 @@ module.exports = async function handler(req, res) {
         uid: authUser.uid,
         userID,
         name,
-        mobile,
+
+        mobile: mobileNormalized,
         mobileNormalized,
-        whatsapp,
+        whatsapp: whatsappNormalized,
+
         email,
         referral,
+
         package: packageName,
         packagePrice: PACKAGES[packageName],
+
+        // Package activates only after verified payment
         packageActive: false,
+
         earnings: 0,
         workEarnings: 0,
         referralEarnings: 0,
+
         pending: 0,
         pendingReferralCommission: 0,
         availableReferralCommission: 0,
+
         referralCommissionAvailableAt: null,
         nextReferralPayoutAt: null,
+
         directReferralCount: 0,
         level: 0,
         referralCommissionRate: 0.20,
+
         freePackageEligible: false,
         freePackageClaimed: false,
+
         emailVerified: false,
         registrationEmailVerified: false,
         registrationLinkVerified: false,
+
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp()
       });
+
     } catch (error) {
       await auth.deleteUser(authUser.uid);
       createdUid = null;
@@ -207,7 +239,7 @@ module.exports = async function handler(req, res) {
       userID,
       name,
       email,
-      whatsapp,
+      whatsapp: whatsappNormalized,
       package: packageName
     });
 
@@ -242,4 +274,3 @@ module.exports = async function handler(req, res) {
     });
   }
 };
-                    
