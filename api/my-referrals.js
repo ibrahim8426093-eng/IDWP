@@ -22,10 +22,7 @@ function send(res, status, body, origin) {
     "Access-Control-Allow-Headers",
     "Content-Type, Authorization"
   );
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS"
-  );
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Vary", "Origin");
 
   return res.end(JSON.stringify(body));
@@ -42,14 +39,20 @@ function getOrigin(req) {
   return allowed.includes(origin) ? origin : "*";
 }
 
-function getBearerToken(req) {
-  const header = String(req.headers.authorization || "");
+function bearer(req) {
+  const h = String(req.headers.authorization || "");
 
-  if (!header.startsWith("Bearer ")) {
-    return "";
-  }
+  return h.startsWith("Bearer ") ? h.slice(7).trim() : "";
+}
 
-  return header.slice(7).trim();
+function variants(id) {
+  const s = String(id || "").trim();
+
+  return [...new Set([
+    s,
+    s.toUpperCase(),
+    s.toLowerCase()
+  ].filter(Boolean))];
 }
 
 module.exports = async function handler(req, res) {
@@ -59,44 +62,30 @@ module.exports = async function handler(req, res) {
     return send(res, 204, {}, origin);
   }
 
-  if (req.method !== "GET" && req.method !== "POST") {
-    return send(
-      res,
-      405,
-      {
-        success: false,
-        error: "Method not allowed"
-      },
-      origin
-    );
+  if (!["GET", "POST"].includes(req.method)) {
+    return send(res, 405, {
+      success: false,
+      error: "Method not allowed"
+    }, origin);
   }
 
   try {
-    const token = getBearerToken(req);
+    const token = bearer(req);
 
     if (!token) {
-      return send(
-        res,
-        401,
-        {
-          success: false,
-          error: "Authentication required."
-        },
-        origin
-      );
+      return send(res, 401, {
+        success: false,
+        error: "Authentication required."
+      }, origin);
     }
 
     const decoded = await admin.auth().verifyIdToken(token);
     const uid = decoded.uid;
 
-    let meSnap = await db
-      .collection("users")
-      .doc(uid)
-      .get();
+    let meSnap = await db.collection("users").doc(uid).get();
 
     if (!meSnap.exists) {
-      const byUid = await db
-        .collection("users")
+      const byUid = await db.collection("users")
         .where("uid", "==", uid)
         .limit(1)
         .get();
@@ -107,90 +96,78 @@ module.exports = async function handler(req, res) {
     }
 
     if (!meSnap.exists) {
-      return send(
-        res,
-        404,
-        {
-          success: false,
-          error: "User profile not found."
-        },
-        origin
-      );
+      return send(res, 404, {
+        success: false,
+        error: "User profile not found."
+      }, origin);
     }
 
     const me = meSnap.data() || {};
 
-    const referralId = String(
-      me.userID || ""
-    ).trim().toUpperCase();
+    const referralId = String(me.userID || "")
+      .trim()
+      .toUpperCase();
 
     if (!referralId) {
-      return send(
-        res,
-        200,
-        {
-          success: true,
-          referralId: "",
-          count: 0,
-          referrals: []
-        },
-        origin
-      );
+      return send(res, 200, {
+        success: true,
+        referralId: "",
+        count: 0,
+        referrals: []
+      }, origin);
     }
 
-    const [referralSnap, referralIdSnap] =
-      await Promise.all([
-        db
-          .collection("users")
-          .where("referral", "==", referralId)
-          .limit(100)
-          .get(),
+    const searchValues = variants(referralId);
 
-        db
-          .collection("users")
-          .where("referralId", "==", referralId)
-          .limit(100)
-          .get()
-      ]);
+    const queries = [
+      db.collection("users")
+        .where("referral", "in", searchValues)
+        .limit(100),
+
+      db.collection("users")
+        .where("referralId", "in", searchValues)
+        .limit(100),
+
+      db.collection("users")
+        .where("referralCode", "in", searchValues)
+        .limit(100)
+    ];
+
+    const snaps = await Promise.all(
+      queries.map(q => q.get())
+    );
 
     const seen = new Set();
     const referrals = [];
 
-    for (const snap of [
-      referralSnap,
-      referralIdSnap
-    ]) {
+    for (const snap of snaps) {
       for (const doc of snap.docs) {
+        if (seen.has(doc.id) || doc.id === meSnap.id) {
+          continue;
+        }
 
-        if (
-          seen.has(doc.id) ||
-          doc.id === meSnap.id
-        ) {
+        const u = doc.data() || {};
+
+        const recordedReferral = String(
+          u.referral ||
+          u.referralId ||
+          u.referralCode ||
+          ""
+        ).trim().toUpperCase();
+
+        if (recordedReferral !== referralId) {
           continue;
         }
 
         seen.add(doc.id);
 
-        const u = doc.data() || {};
-
         referrals.push({
-          name: String(
-            u.name || "IDWP User"
-          ),
-
-          userID: String(
-            u.userID || "-"
-          ),
-
-          package: String(
-            u.package ||
-            u.skill ||
-            "-"
-          ),
-
+          name: String(u.name || "IDWP User"),
+          userID: String(u.userID || "-"),
+          package: String(u.package || u.skill || "-"),
           packageActive: Boolean(
             u.packageActive ||
-            u.packageStatus === "active"
+            String(u.packageStatus || "").toLowerCase() === "active"
           )
         });
       }
@@ -200,35 +177,20 @@ module.exports = async function handler(req, res) {
       a.name.localeCompare(b.name)
     );
 
-    return send(
-      res,
-      200,
-      {
-        success: true,
-        referralId,
-        count: referrals.length,
-        referrals
-      },
-      origin
-    );
+    return send(res, 200, {
+      success: true,
+      referralId,
+      count: referrals.length,
+      referrals
+    }, origin);
 
   } catch (error) {
+    console.error("my-referrals error:", error);
 
-    console.error(
-      "my-referrals error:",
-      error
-    );
-
-    return send(
-      res,
-      500,
-      {
-        success: false,
-        error:
-          "Unable to load direct referrals: " +
-          (error?.message || "server error")
-      },
-      origin
-    );
+    return send(res, 500, {
+      success: false,
+      error: "Unable to load direct referrals: " +
+        (error?.message || "server error")
+    }, origin);
   }
 };
