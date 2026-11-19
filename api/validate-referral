@@ -1,4 +1,3 @@
-
 const { initFirebase, methodGuard } = require("../firebase-helper");
 
 module.exports = async function handler(req, res) {
@@ -6,8 +5,14 @@ module.exports = async function handler(req, res) {
 
   try {
     const referralId = String(
-      req.body?.referralId || req.body?.referralCode || ""
-    ).trim();
+      req.body?.referralId ||
+      req.body?.referralCode ||
+      req.body?.referral ||
+      req.query?.referralId ||
+      ""
+    )
+      .trim()
+      .toUpperCase();
 
     if (!referralId) {
       return res.status(400).json({
@@ -20,32 +25,29 @@ module.exports = async function handler(req, res) {
     const admin = initFirebase();
     const db = admin.firestore();
 
-    // Check whether the referral ID belongs to a registered user.
-    const collectionsToCheck = ["users"];
+    // Referral IDs are stored in the userID field.
+    const snapshot = await db
+      .collection("users")
+      .where("userID", "==", referralId)
+      .limit(1)
+      .get();
 
-    for (const collectionName of collectionsToCheck) {
-      const snapshot = await db
-        .collection(collectionName)
-        .where("referralId", "==", referralId)
-        .limit(1)
-        .get();
-
-      if (!snapshot.empty) {
-        return res.status(200).json({
-          success: true,
-          valid: true,
-          message: "Referral ID is valid."
-        });
-      }
+    if (snapshot.empty) {
+      return res.status(200).json({
+        success: true,
+        valid: false,
+        message: "Referral ID was not found."
+      });
     }
 
     return res.status(200).json({
       success: true,
-      valid: false,
-      message: "Referral ID was not found."
+      valid: true,
+      message: "Referral ID is valid."
     });
+
   } catch (error) {
-    console.error("validate-referral error:", error.message);
+    console.error("validate-referral error:", error);
 
     return res.status(500).json({
       success: false,
