@@ -4,8 +4,9 @@ module.exports = async function handler(req, res) {
   if (methodGuard(req, res)) return;
 
   try {
-    const auth = req.headers.authorization || "";
-    const match = auth.match(/^Bearer\s+(.+)$/i);
+    // Verify logged-in user
+    const authHeader = req.headers.authorization || "";
+    const match = authHeader.match(/^Bearer\s+(.+)$/i);
 
     if (!match) {
       return res.status(401).json({
@@ -24,13 +25,15 @@ module.exports = async function handler(req, res) {
     const amount = Number(req.body?.amount);
     const upiId = String(req.body?.upiId || "").trim();
 
-    if (!Number.isInteger(amount) || amount < 100) {
+    // Validate amount
+    if (!Number.isSafeInteger(amount) || amount < 100) {
       return res.status(400).json({
         success: false,
         message: "Minimum withdrawal amount is ₹100."
       });
     }
 
+    // Validate UPI ID
     if (!/^[a-zA-Z0-9._-]{2,}@[a-zA-Z]{2,}$/.test(upiId)) {
       return res.status(400).json({
         success: false,
@@ -40,7 +43,7 @@ module.exports = async function handler(req, res) {
 
     const userRef = db.collection("users").doc(uid);
 
-    // Same request ID used in all withdrawal records
+    // Generate ONE ID for all records
     const requestRef = db.collection("withdrawalRequests").doc();
     const withdrawalRef = db.collection("withdrawals").doc(requestRef.id);
     const historyRef = userRef.collection("withdrawals").doc(requestRef.id);
@@ -54,17 +57,24 @@ module.exports = async function handler(req, res) {
 
       const user = userSnap.data();
 
-      const totalEarnings = Number(
-        user.earnings ?? user.totalEarnings ?? 0
-      );
-
+      const earnings = Number(user.earnings ?? user.totalEarnings ?? 0);
       const withdrawn = Number(user.withdrawn || 0);
-      const pending = Number(user.pendingWithdrawal || 0);
+      const pendingWithdrawal = Number(user.pendingWithdrawal || 0);
       const pendingReferral = Number(user.pendingReferralCommission || 0);
 
+      if (
+        !Number.isFinite(earnings) ||
+        !Number.isFinite(withdrawn) ||
+        !Number.isFinite(pendingWithdrawal) ||
+        !Number.isFinite(pendingReferral)
+      ) {
+        throw new Error("INVALID_BALANCE");
+      }
+
+      // Match wallet display calculation
       const available = Math.max(
         0,
-        totalEarnings - withdrawn - pending - pendingReferral
+        earnings - withdrawn - pendingWithdrawal - pendingReferral
       );
 
       if (available < amount) {
@@ -76,23 +86,23 @@ module.exports = async function handler(req, res) {
         amount,
         upiId,
         status: "pending",
-        paymentProvider: "CASHFREE_PAYOUTS",
+        paymentProvider: "NOT_YET_PROCESSED",
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp()
       };
 
-      // Reserve amount while payout is pending.
+      // Reserve amount until rejection or payment completion
       tx.update(userRef, {
         pendingWithdrawal: FieldValue.increment(amount)
       });
 
-      // Main request collection
+      // Main request
       tx.set(requestRef, requestData);
 
-      // Payout status API reads this collection
+      // Payout status endpoint reads this
       tx.set(withdrawalRef, requestData);
 
-      // User history screen reads this subcollection
+      // Withdrawal history screen reads this
       tx.set(historyRef, requestData);
     });
 
@@ -117,6 +127,13 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({
         success: false,
         message: "Insufficient available balance."
+      });
+    }
+
+    if (error.message === "INVALID_BALANCE") {
+      return res.status(400).json({
+        success: false,
+        message: "Your wallet balance data is invalid. Please contact support."
       });
     }
 
